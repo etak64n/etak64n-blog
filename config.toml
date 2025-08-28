@@ -1,0 +1,9 @@
+base_url = "https://blog.etak64n.dev/"
+title = "etak64n blog"
+default_language = "ja"
+generate_feeds = true
+feed_limit = 20
+feed_filenames = ["atom.xml"]
+
+[markdown]
+highlight_code = true

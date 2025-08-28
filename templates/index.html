@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Blog</h1>
+  <ul>
+    {% set blog = get_section(path="blog/_index.md") %}
+    {% for p in blog.pages | slice(end=10) %}
+      <li>
+        <a href="{{ p.permalink }}">{{ p.title }}</a>
+        <small>{{ p.date | date(format="%Y-%m-%d") }}</small>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock content %}

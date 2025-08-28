@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ config.title }}{% if page.title %} - {{ page.title }}{% endif %}</title>
+</head>
+<body>
+  <header><a href="{{ get_url(path='@/_index.md') }}">{{ config.title }}</a></header>
+  <main>
+    {% block content %}{% endblock content %}
+  </main>
+  <footer><small>© {{ now() | date(format="%Y") }} etak64n</small></footer>
+</body>
+</html>
