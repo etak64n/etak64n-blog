@@ -13,7 +13,7 @@ Open <http://127.0.0.1:1111> in your browser to preview the site.
 
 ## How to deploy to Cloudflare Pages
 Cloudflare Pages can install Zola automatically when the `ZOLA_VERSION`
-environment variable is set. Configure your Pages project with:
+environment variable is set (see [Deploy a Zola site](https://developers.cloudflare.com/pages/framework-guides/deploy-a-zola-site/)). Configure your Pages project with:
 
 - Environment variable: `ZOLA_VERSION`
 - Build command: `zola build`
