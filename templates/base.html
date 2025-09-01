@@ -2,14 +2,107 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
+  <title>{% if page %}{{ page.title }} | {% endif %}{{ config.title }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ config.title }}{% if page.title %} - {{ page.title }}{% endif %}</title>
+  <link rel="stylesheet" href="{{ get_url(path='main.css') }}">
 </head>
 <body>
-  <header><a href="{{ get_url(path='@/_index.md') }}">{{ config.title }}</a></header>
-  <main>
+<header>
+  <div class="wrap">
+    <a href="{{ get_url(path='@/_index.md') }}">{{ config.title }}</a>
+    <nav>
+      <a href="{{ get_url(path='@/articles/_index.md') }}">Articles</a>
+      <a href="{{ get_url(path='tags') }}/">Tags</a>
+      <a href="{{ get_url(path='categories') }}/">Categories</a>
+      
+    </nav>
+  </div>
+  </header>
+<main>
+  <div class="wrap">
     {% block content %}{% endblock content %}
-  </main>
-  <footer><small>© {{ now() | date(format="%Y") }} etak64n</small></footer>
+  </div>
+</main>
+<footer>
+  <div class="wrap">
+    <p>&copy; {{ now() | date(format="%Y") }} etak64n</p>
+  </div>
+</footer>
 </body>
 </html>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const blocks = document.querySelectorAll('.content pre > code');
+    blocks.forEach(code => {
+      const pre = code.parentElement;
+      if (!pre || pre.classList.contains('codebox-pre') || pre.parentElement?.classList.contains('codebox')) return;
+
+      // Detect optional filename on the first line (various comment syntaxes supported)
+      const text = code.textContent || '';
+      const firstLine = text.split('\n')[0] || '';
+      const m = firstLine.match(/^\s*(?:\/\/|#|;|--|%|\/\*|<!--)?\s*filename\s*[:=]\s*(.+?)(?:\s*\*\/|-->|)\s*$/i);
+      const hasTitle = !!m;
+      const title = hasTitle ? m[1].trim() : '';
+      const hasExt = hasTitle ? /(\.|^)([^\/\s]+)\.[A-Za-z0-9]+$/.test(title) : false;
+
+      // If a filename header is embedded, drop that first line from the code
+      if (hasTitle && hasExt) {
+        const html = code.innerHTML;
+        const idx = html.indexOf('\n');
+        if (idx > -1) code.innerHTML = html.slice(idx + 1);
+      }
+
+      // Wrap every code block in a unified dark codebox for consistent styling
+      const wrapper = document.createElement('div');
+      wrapper.className = 'codebox dark';
+      const bar = document.createElement('div');
+      bar.className = 'codebox-bar';
+      const preClone = pre.cloneNode(true);
+      preClone.classList.add('codebox-pre');
+      if (hasTitle && hasExt) {
+        preClone.classList.add('has-title');
+        const pill = document.createElement('div');
+        pill.className = 'codebox-title-inside';
+        pill.textContent = title;
+        preClone.insertBefore(pill, preClone.firstChild);
+      }
+      wrapper.appendChild(bar);
+
+      // Add copy button
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'codebox-copy';
+      btn.setAttribute('aria-label', 'Copy code');
+      btn.textContent = 'Copy';
+      preClone.appendChild(btn);
+      const codeInClone = preClone.querySelector('code');
+      btn.addEventListener('click', async () => {
+        const text = codeInClone ? codeInClone.innerText : '';
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+          }
+          const old = btn.textContent;
+          btn.textContent = 'Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1200);
+        } catch (e) {
+          btn.textContent = 'Error';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
+        }
+      });
+
+      wrapper.appendChild(preClone);
+      pre.replaceWith(wrapper);
+    });
+  });
+</script>

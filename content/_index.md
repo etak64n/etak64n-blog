@@ -1,8 +1,6 @@
 +++
-title = ""
-description = ""
+title = "Home"
+paginate_by = 20
 sort_by = "date"
-paginate_by = 4
-[extra]
-profile = "etak64n"
+transparent = true
 +++
