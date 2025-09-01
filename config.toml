@@ -8,3 +8,18 @@ theme = "linkita"
 
 [markdown]
 highlight_code = true
+
+[[taxonomies]]
+name = "categories"
+feed = true
+paginate_by = 4
+
+[[taxonomies]]
+name = "tags"
+feed = true
+paginate_by = 4
+
+[[taxonomies]]
+name = "authors"
+feed = true
+paginate_by = 4
