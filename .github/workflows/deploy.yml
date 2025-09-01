@@ -10,8 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: taiki-e/setup-zola@v1
+      - uses: taiki-e/install-action@v2
         with:
+          tool: zola
           version: latest
       - run: zola build
       - uses: cloudflare/pages-action@v1
