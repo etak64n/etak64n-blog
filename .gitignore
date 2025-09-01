@@ -1,3 +1,5 @@
 public/
 .cache/
 .DS_Store
+zola
+zola-*.tar.gz
