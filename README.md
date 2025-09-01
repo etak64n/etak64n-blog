@@ -11,12 +11,14 @@ zola serve
 
 Open <http://127.0.0.1:1111> in your browser to preview the site.
 
-## How to deploy to Cloudflare Pages
-Cloudflare Pages can install Zola automatically when the `ZOLA_VERSION`
-environment variable is set (see [Deploy a Zola site](https://developers.cloudflare.com/pages/framework-guides/deploy-a-zola-site/)). Configure your Pages project with:
+## Deployment
+The site is built and deployed with GitHub Actions. The workflow runs `zola build`
+and publishes the `public` directory to Cloudflare Pages using the
+[Cloudflare Pages Action](https://github.com/cloudflare/pages-action).
 
-- Environment variable: `ZOLA_VERSION`
-- Build command: `zola build`
-- Output directory: `public`
+To enable deployments, configure the following repository secrets:
 
-When linked to the GitHub repository, pushed changes are deployed automatically.
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN`
+
+Pushing to the `main` branch triggers the workflow and updates the site.
