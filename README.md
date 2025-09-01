@@ -1,18 +1,18 @@
 # etak64n-blog
 
-## ローカルで動作させる方法
-Zola がインストールされている環境で以下を実行します。
+## How to run locally
+With Zola installed, run the following:
 
 ```bash
 zola serve
 ```
 
-ブラウザで <http://127.0.0.1:1111> を開くとプレビューできます。
+Open <http://127.0.0.1:1111> in your browser to preview the site.
 
-## Cloudflare Pages にデプロイする方法
-Cloudflare Pages の設定で以下を指定します。
+## How to deploy to Cloudflare Pages
+Configure Cloudflare Pages with:
 
 - Build command: `zola build`
 - Output directory: `public`
 
-GitHub リポジトリと連携すると、push された内容が自動的にデプロイされます。
+When linked to the GitHub repository, pushed changes are deployed automatically.
