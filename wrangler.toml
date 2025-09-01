@@ -1,5 +1,2 @@
 name = "etak64n-blog"
 pages_build_output_dir = "public"
-
-[build]
-command = "bash scripts/build.sh"
