@@ -4,6 +4,7 @@ default_language = "ja"
 generate_feeds = true
 feed_limit = 20
 feed_filenames = ["atom.xml"]
+theme = "linkita"
 
 [markdown]
 highlight_code = true
