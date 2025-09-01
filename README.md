@@ -11,12 +11,14 @@ zola serve
 
 Open <http://127.0.0.1:1111> in your browser to preview the site.
 
-## How to deploy to Cloudflare Pages
-Cloudflare Pages does not provide Zola out of the box. This repository includes a
-small build script that downloads a compatible binary before generating the
-site. Configure your Pages project with:
+## Deployment
+The site is built and deployed with GitHub Actions. The workflow runs `zola build`
+and publishes the `public` directory to Cloudflare Pages using the
+[Cloudflare Pages Action](https://github.com/cloudflare/pages-action).
 
-- Build command: `bash scripts/build.sh`
-- Output directory: `public`
+To enable deployments, configure the following repository secrets:
 
-When linked to the GitHub repository, pushed changes are deployed automatically.
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN`
+
+Pushing to the `main` branch triggers the workflow and updates the site.
