@@ -1,25 +1,44 @@
-name: Deploy
+name: Deploy Zola to Cloudflare Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: write
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CF_API_TOKEN:  ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: taiki-e/install-action@v2
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          tool: zola
-      - run: zola build
-      - uses: actions/setup-node@v4
+          submodules: true  # テーマを submodule で使う場合のみ
+
+      - name: Install Zola
+        uses: taiki-e/install-action@v2
         with:
-          node-version: 18
-      - run: npm install -g wrangler
-      - run: wrangler pages publish public --project-name=etak64n-blog --branch=main --account-id=$CLOUDFLARE_ACCOUNT_ID
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
+          tool: zola@latest  # 固定したい場合は zola@0.19.1 など
+
+      - name: Build
+        run: zola build  # 出力: ./public
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken:  ${{ env.CF_API_TOKEN }}
+          accountId: ${{ env.CF_ACCOUNT_ID }}
+          # PR/ブランチは Preview、本番(main)は Production 自動判定
+          command: pages deploy ./public --project-name=etak64n-blog
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
