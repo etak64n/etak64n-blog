@@ -13,9 +13,9 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: zola
-          version: latest
       - run: zola build
       - uses: cloudflare/pages-action@v1
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
