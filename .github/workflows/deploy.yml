@@ -17,10 +17,9 @@ jobs:
         with:
           tool: zola
       - run: zola build
-      - uses: cloudflare/pages-action@v1
-        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
+      - uses: actions/setup-node@v4
         with:
-          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: etak64n-blog
-          directory: public
+          node-version: 18
+      - run: npm install -g wrangler
+      - run: wrangler pages publish public --project-name=etak64n-blog --branch=main --account-id=$CLOUDFLARE_ACCOUNT_ID
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
