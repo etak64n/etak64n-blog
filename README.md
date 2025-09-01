@@ -1,5 +1,7 @@
 # etak64n-blog
 
+This blog is built with [Zola](https://www.getzola.org/), a static site generator written in Rust. Templates leverage the [Tera](https://tera.netlify.app/) engine, and the site is deployed via [Cloudflare Pages](https://pages.cloudflare.com/).
+
 ## How to run locally
 With Zola installed, run the following:
 
