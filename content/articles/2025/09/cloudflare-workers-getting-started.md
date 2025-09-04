@@ -16,7 +16,6 @@ Cloudflare Workersを使って、簡単なAPIサーバーを無料プランで�
 `Hello World` から、時刻・ヘルスチェック・天気情報までを返すAPIを作り、本番環境にデプロイして削除するところまでの流れを記録します。
 
 ```ts
-filename: src/index.ts
 export default {
   async fetch(request): Promise<Response> {
     const url = new URL(request.url);
