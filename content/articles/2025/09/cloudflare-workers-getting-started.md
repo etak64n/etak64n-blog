@@ -3,7 +3,7 @@ title = "Cloudflare Workersを試してみた：Hello / Health / Time / Weather 
 date = 2025-09-01
 updated = 2025-09-01
 draft = false
-taxonomies = { tags=["Cloudflare"], categories=["Cloudflare"] }
+taxonomies = { tags=["Cloudflare Workers"], categories=["Cloudflare"] }
 [extra]
 author = "etak64n"
 hero = "/images/placeholder.svg"
