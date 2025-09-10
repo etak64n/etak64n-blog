@@ -120,14 +120,47 @@
       .map(a => ({ a, el: document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1))) }))
       .filter(p => p.el);
     const offset = 100;
-    function onScroll() {
+    let lastIdx = -1;
+    let ticking = false;
+    function computeAndAdjust() {
+      // Find current section index
       let idx = -1;
       for (let i = 0; i < anchors.length; i++) {
         const rect = anchors[i].el.getBoundingClientRect();
         if (rect.top - offset <= 0) idx = i; else break;
       }
+      // On initial load (or if no section has crossed the offset yet),
+      // treat the first ToC item as active.
+      if (idx === -1 && anchors.length > 0) idx = 0;
       links.forEach(l => l.classList.remove('active'));
-      if (idx >= 0) anchors[idx].a.classList.add('active');
+      if (idx >= 0) {
+        anchors[idx].a.classList.add('active');
+        if (idx !== lastIdx) {
+          lastIdx = idx;
+          // Keep about 5 items visible below the active one when possible.
+          const post = 5;
+          const wantIdx = Math.min(anchors.length - 1, idx + post);
+          const container = toc;
+          const cTop = container.scrollTop;
+          const cH = container.clientHeight;
+          const aTop = anchors[idx].a.getBoundingClientRect().top - container.getBoundingClientRect().top + cTop;
+          const wantEl = anchors[wantIdx].a;
+          const wantBottom = (wantEl.getBoundingClientRect().bottom - container.getBoundingClientRect().top) + cTop;
+          // If active is above current view, bring it into view (top side ok)
+          if (aTop < cTop + 4) {
+            container.scrollTo({ top: aTop - 8, behavior: 'auto' });
+          }
+          // If the bottom buffer is outside, scroll down so wantIdx bottom is visible
+          else if (wantBottom > cTop + cH - 4) {
+            container.scrollTo({ top: wantBottom - cH + 8, behavior: 'auto' });
+          }
+        }
+      }
+    }
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { computeAndAdjust(); ticking = false; });
     }
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
