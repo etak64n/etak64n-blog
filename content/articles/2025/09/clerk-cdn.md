@@ -3,7 +3,7 @@ title = "Clerk CDN のデモを作ってみた"
 date = 2025-09-01
 updated = 2025-09-01
 draft = false
-taxonomies = { tags=["Clerk""], categories=["Clerk"] }
+taxonomies = { tags=["Clerk"], categories=["Clerk"] }
 [extra]
 author = "etak64n"
 hero = "/images/hero-clerk.svg"
