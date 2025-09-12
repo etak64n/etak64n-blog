@@ -137,6 +137,10 @@
         anchors[idx].a.classList.add('active');
         if (idx !== lastIdx) {
           lastIdx = idx;
+          // If we're at the very top area, reset ToC scroll so the title (目次) is visible.
+          if (idx === 0 && toc.scrollTop > 0) {
+            toc.scrollTo({ top: 0, behavior: 'auto' });
+          }
           // Keep about 5 items visible below the active one when possible.
           const post = 5;
           const wantIdx = Math.min(anchors.length - 1, idx + post);

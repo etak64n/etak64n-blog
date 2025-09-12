@@ -207,8 +207,8 @@ li { margin: 6px 0; }
 article { padding: 8px 0; }
 .post-hero { margin: 16px 0 8px; border-radius: 0; overflow: hidden; border: 1px solid var(--border); }
 .post-hero img { width: 100%; height: auto; display: block; }
-.toc { padding: 8px 0; margin: 0; }
-.toc-title { font-weight: 600; margin-bottom: 8px; text-align: center; color: var(--muted); }
+.toc { padding: 10px 0; margin: 0; }
+.toc-title { font-weight: 600; margin-bottom: 14px; text-align: center; color: var(--muted); }
 .toc-list { list-style: none; margin: 0; padding-left: 0; }
 .toc-list > li { margin: 2px 0; }
 .toc-list ul { list-style: none; margin: 2px 0 4px 16px; padding-left: 0; }
@@ -238,7 +238,7 @@ article { padding: 8px 0; }
 /* No-ToC variant: make content full width */
 .page-body.no-toc { display: block; }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .page-body { display: block; }
   /* Hide ToC entirely on small screens */
   .page-body .toc { display: none !important; }

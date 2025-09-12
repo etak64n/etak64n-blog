@@ -13,6 +13,10 @@ toc = true
 ## Clerk の設定項目について
 Clerk の設定項目についてまとめてみました。
 
+Clerk Dashboard の画面上部 Configure から確認できる項目です。
+
+{{ img(src="clerk-config-basics-hero.png", alt="alt text") }}
+
 ### User & authentication
 
 **Configure - User & authentication** の項目です。
@@ -21,12 +25,14 @@ Clerk の設定項目についてまとめてみました。
 
 以下の6つの設定項目があります。
 
-- User & authentication
-- SSO connections
-- Web3
-- Multi-factor
-- Restrictions
-- Attack protection
+- `User & authentication`
+- `SSO connections`
+- `Web3`
+- `Multi-factor`
+- `Restrictions`
+- `Attack protection`
+
+各種項目について補足していきます。
 
 #### User & authentication
 **Configure - User & authentication - User & authentication** の項目です。
@@ -36,9 +42,18 @@ Clerk の設定項目についてまとめてみました。
 Email、Phone、Username、Password などの認証方式を有効にできます。
 ただし、Phone、Passkey の認証方式は Pro プランでしか使えません。
 
-Email の認証方式では、verification code を使うか verification link も有効にするか、といった設定ができます。
+**Email の認証方式**
 
-Password の認証方式では、最低文字数の長さなどが設定できます。
+Email の認証方式では Sign-up (登録)、Sign-in (ログイン) の設定ができます。
+- Sign-up with email
+- Sign-in with email
+
+Sign-up with email では Verify at sign-up が推奨されています。Veirfy at sign-up を有効にしていると 入力したメールアドレスに対して、verification code か verification link が送られます。
+verification code の場合は、6桁の数字を確認して、フォームに入力することでユーザー登録が完了になります。
+verification link の場合は、そのリンクをクリックすることでユーザー登録が完了になります。
+
+**Password の認証方式**
+最低文字数の長さなどが設定できます。
 
 {{ img(src="password-protection-reject-compromised.webp", alt="Clerk Settings: Password protection (reject compromised passwords)") }}
 
@@ -49,6 +64,14 @@ Password の認証方式では、最低文字数の長さなどが設定でき�
 Password の認証で **Reject compromised passwords** という項目があります。
 これは、漏洩済みパスワードを使わないようにする設定です。
 もし漏洩済みパスワードを設定しようとすると `Password has been found in an online data breach. For account safety, please use a different password.` というエラーが表示されます。
+
+Clerk は、パスワード漏洩時の取り扱いについて、NIST のガイドラインに準拠しています。
+具体的な確認方法としては、Have I Been Pwned というパスワードなどの流出データを収集したデータベースと照合することで、候補のパスワードの安全性を確認します。
+
+**Enfoce minimum password strength** の項目では、パスワードの強化を使用するために zxcvbn のライブラリを使用してチェックします。
+Open Web Application Security Project (OWASP) のガイドラインによって、パスワード強度を判定します。
+
+詳しくは Clerk のドキュメントをご確認ください。
 
 {{ link(url="https://clerk.com/docs/security/password-protection", title="Security & Privacy: Password protection and rules") }}
 

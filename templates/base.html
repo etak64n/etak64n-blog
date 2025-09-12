@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>{% if page %}{{ page.title }} | {% endif %}{{ config.title }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{{ get_url(path='main.css') }}">
+  <link rel="stylesheet" href="{{ get_url(path='main.css', cachebust=true) }}">
   <script>
     // Apply saved or preferred theme early to avoid FOUC
     (function(){
@@ -72,7 +72,6 @@
   </div>
 </footer>
 </body>
-</html>
 <script>
   // Theme toggle wiring (single button at top-right)
   (function(){
@@ -101,6 +100,19 @@
     const btn = document.getElementById('menu-toggle');
     const panel = document.getElementById('mobile-nav');
     if (!btn || !panel) return;
+    // Keep layout aligned by reflecting actual header height to CSS var
+    function updateHeaderHeight(){
+      const header = document.querySelector('header');
+      if (!header) return;
+      const h = Math.round(header.getBoundingClientRect().height);
+      document.documentElement.style.setProperty('--header-h', h + 'px');
+    }
+    updateHeaderHeight();
+    let rhTimer;
+    window.addEventListener('resize', function(){
+      clearTimeout(rhTimer);
+      rhTimer = setTimeout(updateHeaderHeight, 120);
+    }, {passive:true});
     function setOpen(open){
       html.setAttribute('data-menu', open ? 'open' : 'closed');
       btn.setAttribute('aria-expanded', String(open));
@@ -187,3 +199,4 @@
     });
   });
 </script>
+</html>

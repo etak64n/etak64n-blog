@@ -56,13 +56,11 @@ Notes
 - Term pages render as a responsive card grid.
 
 ## Deployment (Cloudflare Pages)
-- GitHub Actions runs `zola build` and publishes `public/` to Pages.
-- Required repository secrets:
-  - `CLOUDFLARE_ACCOUNT_ID`
-  - `CLOUDFLARE_API_TOKEN`
-- Pushing to `main` triggers the workflow.
+- Build command: `zola build -u "${CF_PAGES_URL:-https://blog.etak64n.dev/}"`
+  - Output directory: `public`
+  - Direct upload via Wrangler: `wrangler pages deploy public`
 
 Notes
 - Feeds are currently disabled (`generate_feeds = false`). Turn on and add a header link if you need them.
 - `wrangler.toml` is for Pages Direct Upload/Workers. If you only use Pages (GitHub integration), it may remain unused.
-
+- If a preview shows old styles, view page source and check the `main.css` URL domain. It should be the preview domain when using the build command above.
