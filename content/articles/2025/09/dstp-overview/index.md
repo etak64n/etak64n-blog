@@ -6,7 +6,7 @@ draft = false
 taxonomies = { tags=["Network", "Tools"], categories=["Tools"] }
 [extra]
 author = "etak64n"
-hero = "/images/hero/hero-terminal.png"
+hero = "/images/hero/hero-terminal.webp"
 toc = true
 +++
 

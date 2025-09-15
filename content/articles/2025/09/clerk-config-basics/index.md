@@ -15,7 +15,7 @@ Clerk の設定項目についてまとめてみました。
 
 Clerk Dashboard の画面上部 Configure から確認できる項目です。
 
-{{ img(src="clerk-config-basics-hero.png", alt="alt text") }}
+{{ img(src="clerk-config-basics-hero.webp", alt="alt text") }}
 
 ### User & authentication
 
