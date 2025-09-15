@@ -71,7 +71,39 @@ Flags:
 ### 使い方
 
 1. git add でファイルをステージングに追加します
-2. oco
+2. oco コマンドを実行します
+3. 誘導に従うと git push まで実行できます
+
+```sh
+(๑>ᴗ<) < oco                                                             (git)-[main]
+┌  open-commit
+│
+◇  1 staged files:
+  content/articles/2025/09/opencommit-overview/index.md
+│
+◇  📝 Commit message generated
+│
+└  Generated commit message:
+——————————————————
+feat(opencommit): add overview article for OpenCommit with installation steps and usage instructions
+——————————————————
+
+│
+◇  Confirm the commit message?
+│  Yes
+│
+◇  ✔ Successfully committed
+│
+└  [main 3e20353] feat(opencommit): add overview article for OpenCommit with installation steps and usage instructions
+ 1 file changed, 77 insertions(+)
+ create mode 100644 content/articles/2025/09/opencommit-overview/index.md
+
+│
+◇  Do you want to run `git push`?
+│  Yes
+│
+◇  ✔ Successfully pushed all commits to origin
+```
 
 ### まとめ
 `oco` コマンドにより、自動で commit メッセージを入れてくれるようになりました。
