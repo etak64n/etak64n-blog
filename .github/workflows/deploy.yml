@@ -1,4 +1,5 @@
 name: Deploy Zola to Cloudflare Pages
+run-name: "Zola → CF Pages • ${{ github.ref_name }} #${{ github.run_number }}"
 
 on:
   push:
@@ -9,14 +10,21 @@ concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-  deployments: write
+# ✅ Secrets 参照を先頭へ集約（定義は Settings → Secrets）
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+  CF_PAGES_PROJECT: etak64n-blog
+  BUILD_DIR: public
 
 jobs:
-  build-and-deploy:
+  # --- 1) Build ---
+  build:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,17 +39,84 @@ jobs:
       - name: Build
         run: zola build
 
-      # フォークからのPRではSecretsが読めない → デプロイをスキップ
-      - name: Deploy to Cloudflare Pages
-        if: github.event_name == 'push' || github.event.pull_request.head.repo.fork == false
-        uses: cloudflare/wrangler-action@v3
-        env:
-          # Wrangler は CLOUDFLARE_API_TOKEN 環境変数を参照するため明示しておく
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Upload artifact (site)
+        uses: actions/upload-artifact@v4
         with:
-          # Secrets を直接渡す（env 経由にしない）
-          apiToken:  ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./public --project-name=etak64n-blog
+          name: zola-public
+          path: ${{ env.BUILD_DIR }}
+          if-no-files-found: error
+          retention-days: 1
+
+  # --- 2) Deploy ---
+  deploy:
+    needs: build
+    # Build 成功かつ push or フォークでない PR のときだけデプロイ
+    if: ${{ needs.build.result == 'success' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: zola-public
+          path: ${{ env.BUILD_DIR }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken:  ${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ${{ env.BUILD_DIR }} --project-name=${{ env.CF_PAGES_PROJECT }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  # --- 3) Notify (1回だけ要約通知) ---
+  notify:
+    needs: [build, deploy]
+    # 失敗しても必ず実行 + Secrets が使えるイベントだけ実行
+    if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Notify Discord (summary)
+        if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
+        continue-on-error: true
+        env:
+          BUILD_RES: ${{ needs.build.result }}
+          DEPLOY_RES: ${{ needs.deploy.result }}
+        run: |
+          BUILD="${BUILD_RES:-unknown}"
+          DEPLOY="${DEPLOY_RES:-skipped}"
+
+          MSG=""
+          if [ "$BUILD" = "success" ]; then
+            MSG+="✅ Build: success\n"
+          elif [ "$BUILD" = "failure" ]; then
+            MSG+="❌ Build: failure\n"
+          else
+            MSG+="ℹ️ Build: $BUILD\n"
+          fi
+
+          if [ "$DEPLOY" = "success" ]; then
+            MSG+="🚀 Deploy: success\n"
+          elif [ "$DEPLOY" = "failure" ]; then
+            MSG+="⚠️ Deploy: failure\n"
+          else
+            MSG+="➡️ Deploy: $DEPLOY\n"
+          fi
+
+          MSG+="repo: ${{ github.repository }}\n"
+          MSG+="branch: ${{ github.ref_name }}\n"
+          MSG+="commit: ${{ github.sha }}\n"
+          MSG+="by: ${{ github.actor }}\n"
+          MSG+="run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          # 改行を \n にエスケープして JSON 化
+          MSG_ESCAPED=${MSG//$'\n'/\\n}
+          curl -H 'Content-Type: application/json' \
+               -d "{\"content\":\"$MSG_ESCAPED\"}" \
+               "$DISCORD_WEBHOOK_URL"
