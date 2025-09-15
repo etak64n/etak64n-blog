@@ -10,7 +10,7 @@ concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
 
-# ✅ Secrets 参照の集約
+# Secrets 参照を集約
 env:
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -71,7 +71,7 @@ jobs:
           command: pages deploy ${{ env.BUILD_DIR }} --project-name=${{ env.CF_PAGES_PROJECT }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
-  # --- 3) Notify（1回だけ・未定義ならエラー） ---
+  # --- 3) Notify（Embed 1回通知） ---
   notify:
     needs: [build, deploy]
     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)) }}
@@ -80,7 +80,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      # ❗ 必須: Webhook 未設定なら fail（ここで終了）
+      # Webhook 未設定なら fail
       - name: Verify DISCORD_WEBHOOK_URL is set
         run: |
           set -euo pipefail
@@ -88,39 +88,96 @@ jobs:
             echo "::error::DISCORD_WEBHOOK_URL secret is not set. Configure it in Settings → Secrets and variables → Actions."
             exit 1
           fi
-          case "$DISCORD_WEBHOOK_URL" in
-            https://discord.com/api/webhooks/*) : ;;
-            *) echo "::warning::DISCORD_WEBHOOK_URL doesn't look like a Discord webhook URL."; ;;
-          esac
 
-      - name: Notify Discord (summary)
-        continue-on-error: true
+      - name: Notify Discord (Embed summary)
         env:
           BUILD_RES: ${{ needs.build.result }}
           DEPLOY_RES: ${{ needs.deploy.result }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          HEAD_MSG: ${{ github.event.head_commit.message }}
+          REF_NAME: ${{ github.ref_name }}
+          HEAD_REF: ${{ github.head_ref }}
         run: |
+          set -euo pipefail
+
           BUILD="${BUILD_RES:-unknown}"
           DEPLOY="${DEPLOY_RES:-skipped}"
 
-          MSG=""
+          # 表示テキスト
           case "$BUILD" in
-            success) MSG+="✅ Build: success\n" ;;
-            failure) MSG+="❌ Build: failure\n" ;;
-            *)       MSG+="ℹ️ Build: $BUILD\n" ;;
+            success) BUILD_TXT="✅ success" ;;
+            failure) BUILD_TXT="❌ failure" ;;
+            *)       BUILD_TXT="$BUILD" ;;
           esac
           case "$DEPLOY" in
-            success) MSG+="🚀 Deploy: success\n" ;;
-            failure) MSG+="⚠️ Deploy: failure\n" ;;
-            *)       MSG+="➡️ Deploy: $DEPLOY\n" ;;
+            success) DEPLOY_TXT="🚀 success" ;;
+            failure) DEPLOY_TXT="⚠️ failure" ;;
+            *)       DEPLOY_TXT="$DEPLOY" ;;
           esac
 
-          MSG+="repo: ${{ github.repository }}\n"
-          MSG+="branch: ${{ github.ref_name }}\n"
-          MSG+="commit: ${{ github.sha }}\n"
-          MSG+="by: ${{ github.actor }}\n"
-          MSG+="run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          # Embed 色（Discord は 24bit int）
+          # success=0x2ECC71(3066993), deploy fail=0xE67E22(15105570), build fail=0xE74C3C(15158332), skipped=0xFEE75C(16705372)
+          if [ "$BUILD" = "failure" ]; then COLOR=15158332
+          elif [ "$DEPLOY" = "failure" ]; then COLOR=15105570
+          elif [ "$DEPLOY" = "skipped" ]; then COLOR=16705372
+          else COLOR=3066993
+          fi
 
-          MSG_ESCAPED=${MSG//$'\n'/\\n}
-          curl -H 'Content-Type: application/json' \
-               -d "{\"content\":\"$MSG_ESCAPED\"}" \
-               "$DISCORD_WEBHOOK_URL"
+          # タイトル（commit/PR タイトルを説明に）
+          SUBJECT="$HEAD_MSG"
+          if [ "$EVENT_NAME" = "pull_request" ] && [ -n "${PR_TITLE:-}" ]; then SUBJECT="$PR_TITLE"; fi
+          SUBJECT=${SUBJECT:-"Workflow summary"}
+          SUBJECT=$(printf '%s' "$SUBJECT" | tr -d '\r' | head -n1 | cut -c1-120)
+          SUBJECT_JSON=${SUBJECT//\\/\\\\}
+          SUBJECT_JSON=${SUBJECT_JSON//\"/\\\"}
+
+          BRANCH="$REF_NAME"
+          if [ "$EVENT_NAME" = "pull_request" ] && [ -n "${HEAD_REF:-}" ]; then BRANCH="$HEAD_REF"; fi
+
+          SHORT_SHA="${GITHUB_SHA::7}"
+          RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
+          TITLE="Zola → CF Pages • ${BRANCH} #${GITHUB_RUN_NUMBER}"
+          NOW_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          # Embed + ボタン
+          json=$(cat <<EOF
+          {
+            "username": "Zola CI",
+            "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+            "allowed_mentions": { "parse": [] },
+            "embeds": [
+              {
+                "title": "${TITLE}",
+                "url": "${RUN_URL}",
+                "description": "${SUBJECT_JSON}",
+                "color": ${COLOR},
+                "timestamp": "${NOW_UTC}",
+                "author": { "name": "${GITHUB_REPOSITORY}", "url": "${REPO_URL}" },
+                "thumbnail": { "url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" },
+                "fields": [
+                  { "name": "Build",   "value": "${BUILD_TXT}",            "inline": true },
+                  { "name": "Deploy",  "value": "${DEPLOY_TXT}",           "inline": true },
+                  { "name": "Branch",  "value": "\`${BRANCH}\`",           "inline": true },
+                  { "name": "Commit",  "value": "[\`${SHORT_SHA}\`](${COMMIT_URL})", "inline": true },
+                  { "name": "Actor",   "value": "${GITHUB_ACTOR}",         "inline": true },
+                  { "name": "Project", "value": "\`${CF_PAGES_PROJECT}\`", "inline": true }
+                ],
+                "footer": { "text": "Run #${GITHUB_RUN_NUMBER}" }
+              }
+            ],
+            "components": [{
+              "type": 1,
+              "components": [
+                { "type": 2, "style": 5, "label": "Open Run",   "url": "${RUN_URL}" },
+                { "type": 2, "style": 5, "label": "View Commit","url": "${COMMIT_URL}" },
+                { "type": 2, "style": 5, "label": "Repository", "url": "${REPO_URL}" }
+              ]
+            }]
+          }
+          EOF
+          )
+
+          curl -H 'Content-Type: application/json' -d "$json" "$DISCORD_WEBHOOK_URL"
