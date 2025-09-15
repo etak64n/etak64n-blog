@@ -187,7 +187,7 @@ OpenAI 側で `max_tokens` が deprecation になり、`max_completion_tokens` �
 > This value is now deprecated in favor of max_completion_tokens, and is not compatible with o-series models.
 
 OpenCommit のコードを見てみると OpenRouter に対して Chat Completion API (`/v1/chat/completions`) を呼び出しています。
-しかし、OpenAI Chat Completion API のパラメータでは max_tokens が定義されていて、max_completion_tokens での呼び出しがされていません。
+しかし、OpenAI Chat Completion API のパラメータでは `max_tokens` が定義されていて、`max_completion_tokens` での呼び出しがされていません。
 
 [opencommit/src/engine/openrouter.ts](https://github.com/di-sukharev/opencommit/blob/ebbaff0628cfd8ae14495bd456f9a2e8e47967c5/src/engine/openrouter.ts#L13)
 
