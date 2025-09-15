@@ -10,7 +10,7 @@ concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
 
-# ✅ Secrets 参照を先頭へ集約（定義は Settings → Secrets）
+# ✅ Secrets 参照の集約
 env:
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -50,7 +50,6 @@ jobs:
   # --- 2) Deploy ---
   deploy:
     needs: build
-    # Build 成功かつ push or フォークでない PR のときだけデプロイ
     if: ${{ needs.build.result == 'success' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)) }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -72,18 +71,29 @@ jobs:
           command: pages deploy ${{ env.BUILD_DIR }} --project-name=${{ env.CF_PAGES_PROJECT }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
-  # --- 3) Notify (1回だけ要約通知) ---
+  # --- 3) Notify（1回だけ・未定義ならエラー） ---
   notify:
     needs: [build, deploy]
-    # 失敗しても必ず実行 + Secrets が使えるイベントだけ実行
     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: read
     steps:
+      # ❗ 必須: Webhook 未設定なら fail（ここで終了）
+      - name: Verify DISCORD_WEBHOOK_URL is set
+        run: |
+          set -euo pipefail
+          if [ -z "${DISCORD_WEBHOOK_URL:-}" ] || [ -z "$(printf '%s' "$DISCORD_WEBHOOK_URL" | tr -d '[:space:]')" ]; then
+            echo "::error::DISCORD_WEBHOOK_URL secret is not set. Configure it in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          case "$DISCORD_WEBHOOK_URL" in
+            https://discord.com/api/webhooks/*) : ;;
+            *) echo "::warning::DISCORD_WEBHOOK_URL doesn't look like a Discord webhook URL."; ;;
+          esac
+
       - name: Notify Discord (summary)
-        if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
         continue-on-error: true
         env:
           BUILD_RES: ${{ needs.build.result }}
@@ -93,21 +103,16 @@ jobs:
           DEPLOY="${DEPLOY_RES:-skipped}"
 
           MSG=""
-          if [ "$BUILD" = "success" ]; then
-            MSG+="✅ Build: success\n"
-          elif [ "$BUILD" = "failure" ]; then
-            MSG+="❌ Build: failure\n"
-          else
-            MSG+="ℹ️ Build: $BUILD\n"
-          fi
-
-          if [ "$DEPLOY" = "success" ]; then
-            MSG+="🚀 Deploy: success\n"
-          elif [ "$DEPLOY" = "failure" ]; then
-            MSG+="⚠️ Deploy: failure\n"
-          else
-            MSG+="➡️ Deploy: $DEPLOY\n"
-          fi
+          case "$BUILD" in
+            success) MSG+="✅ Build: success\n" ;;
+            failure) MSG+="❌ Build: failure\n" ;;
+            *)       MSG+="ℹ️ Build: $BUILD\n" ;;
+          esac
+          case "$DEPLOY" in
+            success) MSG+="🚀 Deploy: success\n" ;;
+            failure) MSG+="⚠️ Deploy: failure\n" ;;
+            *)       MSG+="➡️ Deploy: $DEPLOY\n" ;;
+          esac
 
           MSG+="repo: ${{ github.repository }}\n"
           MSG+="branch: ${{ github.ref_name }}\n"
@@ -115,7 +120,6 @@ jobs:
           MSG+="by: ${{ github.actor }}\n"
           MSG+="run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-          # 改行を \n にエスケープして JSON 化
           MSG_ESCAPED=${MSG//$'\n'/\\n}
           curl -H 'Content-Type: application/json' \
                -d "{\"content\":\"$MSG_ESCAPED\"}" \
