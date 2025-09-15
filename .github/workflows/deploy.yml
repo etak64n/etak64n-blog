@@ -75,19 +75,17 @@ jobs:
     needs: [build, deploy]
     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)) }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     timeout-minutes: 5
     steps:
       - name: Verify DISCORD_WEBHOOK_URL is set
         run: |
           set -euo pipefail
           if [ -z "${DISCORD_WEBHOOK_URL:-}" ] || [ -z "$(printf '%s' "$DISCORD_WEBHOOK_URL" | tr -d '[:space:]')" ]; then
-            echo "::error::DISCORD_WEBHOOK_URL secret is not set. Configure it in Settings → Secrets and variables → Actions."
+            echo "::error::DISCORD_WEBHOOK_URL secret is not set."
             exit 1
           fi
 
-      - name: Notify Discord (Embed summary)
+      - name: Notify Discord (embed, strict + debuggable)
         env:
           BUILD_RES: ${{ needs.build.result }}
           DEPLOY_RES: ${{ needs.deploy.result }}
@@ -96,27 +94,23 @@ jobs:
           HEAD_MSG: ${{ github.event.head_commit.message }}
           REF_NAME: ${{ github.ref_name }}
           HEAD_REF: ${{ github.head_ref }}
-          IS_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
+          ACTOR: ${{ github.actor }}
         run: |
           set -euo pipefail
-
           BUILD="${BUILD_RES:-unknown}"
           DEPLOY="${DEPLOY_RES:-skipped}"
           EVENT="${EVENT_NAME:-push}"
 
-          # ------ テキスト整形（成功/失敗/スキップをわかりやすく） ------
-          if [ "$BUILD" = "success" ]; then BUILD_TXT="✅ **Succeeded**"; else
-            if [ "$BUILD" = "failure" ]; then BUILD_TXT="❌ **Failed**"; else BUILD_TXT="ℹ️ ${BUILD}"; fi
-          fi
-
+          # 表示テキスト（わかりやすく）
+          [ "$BUILD"  = "success" ] && BUILD_TXT="✅ **Succeeded**" \
+            || BUILD_TXT=$([ "$BUILD" = "failure" ] && echo "❌ **Failed**" || echo "ℹ️ ${BUILD}")
           if [ "$DEPLOY" = "success" ]; then
             DEPLOY_TXT="🚀 **Deployed**"
           elif [ "$DEPLOY" = "failure" ]; then
             DEPLOY_TXT="⚠️ **Failed**"
           else
-            # skipped の理由を補足
             REASON=""
-            if [ "$EVENT" = "pull_request" ] && [ "${IS_FORK}" = "true" ]; then
+            if [ "$EVENT" = "pull_request" ] && [ "${{ github.event.pull_request.head.repo.fork }}" = "true" ]; then
               REASON="(forked PR / no secrets)"
             elif [ "$BUILD" != "success" ]; then
               REASON="(build not successful)"
@@ -124,77 +118,79 @@ jobs:
             DEPLOY_TXT="⏭️ **Skipped** ${REASON}"
           fi
 
-          # ------ 色（24bit int） ------
-          # success=0x2ECC71(3066993), deploy fail=0xE67E22(15105570), build fail=0xE74C3C(15158332), skipped=0xFEE75C(16705372)
+          # 色
           if [ "$BUILD" = "failure" ]; then COLOR=15158332
           elif [ "$DEPLOY" = "failure" ]; then COLOR=15105570
           elif [ "$DEPLOY" = "skipped" ]; then COLOR=16705372
           else COLOR=3066993
           fi
 
-          # ------ タイトル・本文 ------
-          SUBJECT="$HEAD_MSG"
-          if [ "$EVENT" = "pull_request" ] && [ -n "${PR_TITLE:-}" ]; then SUBJECT="$PR_TITLE"; fi
-          SUBJECT=${SUBJECT:-"Workflow summary"}
+          SUBJECT="${HEAD_MSG:-Workflow summary}"
+          [ "$EVENT" = "pull_request" ] && [ -n "${PR_TITLE:-}" ] && SUBJECT="$PR_TITLE"
           SUBJECT=$(printf '%s' "$SUBJECT" | tr -d '\r' | head -n1 | cut -c1-120)
 
-          # JSON エスケープ関数
-          esc() { s=$1; s=${s//\\/\\\\}; s=${s//\"/\\\"}; s=${s//$'\n'/ }; printf '%s' "$s"; }
-
-          SUBJECT_JSON=$(esc "$SUBJECT")
-          BRANCH="$REF_NAME"; [ "$EVENT" = "pull_request" ] && [ -n "${HEAD_REF:-}" ] && BRANCH="$HEAD_REF"
-          BRANCH_JSON=$(esc "$BRANCH")
-          ACTOR_JSON=$(esc "$GITHUB_ACTOR")
-          PROJECT_JSON=$(esc "$CF_PAGES_PROJECT")
-
+          BRANCH="${REF_NAME}"; [ "$EVENT" = "pull_request" ] && [ -n "${HEAD_REF:-}" ] && BRANCH="$HEAD_REF"
           SHORT_SHA="${GITHUB_SHA::7}"
+
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
           REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
           BRANCH_URL="https://github.com/${GITHUB_REPOSITORY}/tree/${BRANCH}"
-          ACTOR_URL="https://github.com/${GITHUB_ACTOR}"
+          ACTOR_URL="https://github.com/${ACTOR}"
           PROJECT_URL="https://${CF_PAGES_PROJECT}.pages.dev"
-
           TITLE="Zola → CF Pages • ${BRANCH} #${GITHUB_RUN_NUMBER}"
           NOW_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          # ------ Embed + ボタン（Branch/Actor/Project をリンク化） ------
-          json=$(cat <<EOF
-          {
-            "username": "GitHub Actions",
-            "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
-            "allowed_mentions": { "parse": [] },
-            "embeds": [
-              {
-                "title": "${TITLE}",
-                "url": "${RUN_URL}",
-                "description": "${SUBJECT_JSON}",
-                "color": ${COLOR},
-                "timestamp": "${NOW_UTC}",
-                "author": { "name": "${GITHUB_REPOSITORY}", "url": "${REPO_URL}" },
-                "thumbnail": { "url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" },
-                "fields": [
-                  { "name": "Build",   "value": "${BUILD_TXT}",                                   "inline": true },
-                  { "name": "Deploy",  "value": "${DEPLOY_TXT}",                                  "inline": true },
-                  { "name": "Branch",  "value": "[\\\`${BRANCH_JSON}\\\`](${BRANCH_URL})",        "inline": true },
-                  { "name": "Commit",  "value": "[\\\`${SHORT_SHA}\\\`](${COMMIT_URL})",          "inline": true },
-                  { "name": "Actor",   "value": "[${ACTOR_JSON}](${ACTOR_URL})",                  "inline": true },
-                  { "name": "Project", "value": "[\\\`${PROJECT_JSON}\\\`](${PROJECT_URL})",      "inline": true }
-                ],
-                "footer": { "text": "Run #${GITHUB_RUN_NUMBER}" }
-              }
-            ],
-            "components": [{
-              "type": 1,
-              "components": [
-                { "type": 2, "style": 5, "label": "Open Run",   "url": "${RUN_URL}" },
-                { "type": 2, "style": 5, "label": "View Commit","url": "${COMMIT_URL}" },
-                { "type": 2, "style": 5, "label": "Repository", "url": "${REPO_URL}" },
-                { "type": 2, "style": 5, "label": "View Site",  "url": "${PROJECT_URL}" }
+          # JSON を jq で安全に生成
+          jq -n \
+            --arg title "$TITLE" --arg run_url "$RUN_URL" --arg subject "$SUBJECT" --arg color "$COLOR" --arg now "$NOW_UTC" \
+            --arg repo "$GITHUB_REPOSITORY" --arg repo_url "$REPO_URL" \
+            --arg build "$BUILD_TXT" --arg deploy "$DEPLOY_TXT" \
+            --arg branch "$BRANCH" --arg branch_url "$BRANCH_URL" \
+            --arg short_sha "$SHORT_SHA" --arg commit_url "$COMMIT_URL" \
+            --arg actor "$ACTOR" --arg actor_url "$ACTOR_URL" \
+            --arg project "$CF_PAGES_PROJECT" --arg project_url "$PROJECT_URL" \
+            --arg run_number "$GITHUB_RUN_NUMBER" \
+            '{
+              username: "GitHub Actions",
+              avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+              allowed_mentions: {parse: []},
+              embeds: [
+                {
+                  title: $title, url: $run_url, description: $subject,
+                  color: ($color|tonumber), timestamp: $now,
+                  author: {name: $repo, url: $repo_url},
+                  thumbnail: {url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"},
+                  fields: [
+                    {name:"Build",   value:$build,  inline:true},
+                    {name:"Deploy",  value:$deploy, inline:true},
+                    {name:"Branch",  value:("[`"+$branch+"`]("+$branch_url+")"), inline:true},
+                    {name:"Commit",  value:("[`"+$short_sha+"`]("+$commit_url+")"), inline:true},
+                    {name:"Actor",   value:("["+ $actor +"]("+$actor_url+")"), inline:true},
+                    {name:"Project", value:("[`"+$project+"`]("+$project_url+")"), inline:true}
+                  ],
+                  footer:{text: ("Run #"+$run_number)}
+                }
+              ],
+              components: [
+                {type:1, components:[
+                  {type:2, style:5, label:"Open Run",   url:$run_url},
+                  {type:2, style:5, label:"View Commit",url:$commit_url},
+                  {type:2, style:5, label:"Repository", url:$repo_url},
+                  {type:2, style:5, label:"View Site",  url:$project_url}
+                ]}
               ]
-            }]
-          }
-          EOF
-          )
+            }' > payload.json
 
-          curl -sS -H 'Content-Type: application/json' -d "$json" "$DISCORD_WEBHOOK_URL" >/dev/null
+          # 送信（非2xxならエラーにして理由を表示）
+          code=$(curl -sS -o resp.json -w "%{http_code}" \
+                   -H 'Content-Type: application/json' \
+                   -d @payload.json "$DISCORD_WEBHOOK_URL")
+          echo "Discord HTTP: $code"
+          if [ "$code" != "200" ] && [ "$code" != "204" ]; then
+            echo "::error::Discord webhook error (HTTP $code)"
+            echo "Response body:"; cat resp.json || true
+            echo "Payload preview:"; head -c 500 payload.json; echo
+            exit 1
+          fi
+          echo "Discord OK ✅"
