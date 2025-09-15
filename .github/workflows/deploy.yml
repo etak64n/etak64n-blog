@@ -70,7 +70,7 @@ jobs:
           command: pages deploy ${{ env.BUILD_DIR }} --project-name=${{ env.CF_PAGES_PROJECT }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
-  # --- 3) Notify（Embed 1回通知・リンク強化） ---
+  # --- 3) Notify（1回通知・1つのEmbedに統合） ---
   notify:
     needs: [build, deploy]
     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)) }}
@@ -87,7 +87,7 @@ jobs:
             exit 1
           fi
 
-      - name: Notify Discord (embeds without emojis/inline-code)
+      - name: Notify Discord (single embed, horizontal fields)
         env:
           BUILD_RES: ${{ needs.build.result }}
           DEPLOY_RES: ${{ needs.deploy.result }}
@@ -108,8 +108,8 @@ jobs:
           # ---- 表示テキスト（絵文字・バッククォート無し） ----
           case "$BUILD" in
             success) BUILD_TEXT="Success" ;;
-            failure) BUILD_TEXT="Failed" ;;
-            *)       BUILD_TEXT="$BUILD" ;;
+            failure) BUILD_TEXT="Failed"  ;;
+            *)       BUILD_TEXT="$BUILD"  ;;
           esac
 
           if [ "$DEPLOY" = "success" ]; then
@@ -126,20 +126,12 @@ jobs:
             DEPLOY_TEXT="Skipped ${REASON}"
           fi
 
-          # ---- 色（Embed 単位で指定） ----
+          # ---- 色（Embed 全体の色：ワースト優先）----
           # 緑=3066993, 橙=15105570, 赤=15158332, 黄=16705372
           if   [ "$BUILD"  = "failure" ]; then SUMMARY_COLOR=15158332
           elif [ "$DEPLOY" = "failure" ]; then SUMMARY_COLOR=15105570
           elif [ "$BUILD"  != "success" ] || [ "$DEPLOY" != "success" ]; then SUMMARY_COLOR=16705372
           else SUMMARY_COLOR=3066993; fi
-
-          if   [ "$BUILD"  = "success" ]; then BUILD_COLOR=3066993
-          elif [ "$BUILD"  = "failure" ]; then BUILD_COLOR=15158332
-          else BUILD_COLOR=16705372; fi
-
-          if   [ "$DEPLOY" = "success" ]; then DEPLOY_COLOR=3066993
-          elif [ "$DEPLOY" = "failure" ]; then DEPLOY_COLOR=15105570
-          else DEPLOY_COLOR=16705372; fi
 
           # ---- タイトル・リンク等 ----
           SUBJECT="${HEAD_MSG:-Workflow summary}"
@@ -158,7 +150,7 @@ jobs:
           TITLE="Zola → CF Pages • ${BRANCH} #${GITHUB_RUN_NUMBER}"
           NOW_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          # ---- JSON を jq で安全に生成（テキスト色は不可／Embed 色で表現）----
+          # ---- JSON を jq で安全に生成（2列×3段に整列するために ZWSP のスペーサーを使用）----
           jq -n \
             --arg title "$TITLE" --arg run_url "$RUN_URL" --arg subject "$SUBJECT" \
             --arg now "$NOW_UTC" --arg repo "$GITHUB_REPOSITORY" --arg repo_url "$REPO_URL" \
@@ -167,33 +159,37 @@ jobs:
             --arg actor "$ACTOR" --arg actor_url "$ACTOR_URL" \
             --arg project "$CF_PAGES_PROJECT" --arg project_url "$PROJECT_URL" \
             --arg build_text "$BUILD_TEXT" --arg deploy_text "$DEPLOY_TEXT" \
-            --argjson summary_color "$SUMMARY_COLOR" \
-            --argjson build_color "$BUILD_COLOR" \
-            --argjson deploy_color "$DEPLOY_COLOR" \
             --arg run_number "$GITHUB_RUN_NUMBER" \
+            --arg spacer "\u200B" \
+            --argjson color "$SUMMARY_COLOR" \
             '{
               username: "GitHub Actions",
               avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
               allowed_mentions: {parse: []},
               embeds: [
-                # サマリー（最悪状態の色）
                 {
                   title: $title, url: $run_url, description: $subject,
-                  color: $summary_color, timestamp: $now,
+                  color: $color, timestamp: $now,
                   author: {name: $repo, url: $repo_url},
                   thumbnail: {url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"},
                   fields: [
-                    {name:"Branch",  value:("["+$branch+"]("+$branch_url+")"), inline:true},
-                    {name:"Commit",  value:("["+$short_sha+"]("+$commit_url+")"), inline:true},
-                    {name:"Actor",   value:("["+$actor+"]("+$actor_url+")"),   inline:true},
-                    {name:"Project", value:("["+$project+"]("+$project_url+")"), inline:true}
+                    # 1段目（Build / Deploy を横並び）
+                    {name:"Build",  value:$build_text,  inline:true},
+                    {name:"Deploy", value:$deploy_text, inline:true},
+                    {name:$spacer,  value:$spacer,      inline:true},
+
+                    # 2段目（Branch / Commit）
+                    {name:"Branch", value:("["+$branch+"]("+$branch_url+")"), inline:true},
+                    {name:"Commit", value:("["+$short_sha+"]("+$commit_url+")"), inline:true},
+                    {name:$spacer,  value:$spacer, inline:true},
+
+                    # 3段目（Actor / Project）
+                    {name:"Actor",   value:("["+$actor+"]("+$actor_url+")"), inline:true},
+                    {name:"Project", value:("["+$project+"]("+$project_url+")"), inline:true},
+                    {name:$spacer,   value:$spacer, inline:true}
                   ],
                   footer:{text: ("Run #"+$run_number)}
-                },
-                # Build（状態に応じた色）
-                { title: "Build",  description: ("Status: "+$build_text),  color: $build_color },
-                # Deploy（状態に応じた色）
-                { title: "Deploy", description: ("Status: "+$deploy_text), color: $deploy_color }
+                }
               ],
               components: [{
                 type: 1,
@@ -206,6 +202,7 @@ jobs:
               }]
             }' > payload.json
 
+          # 送信（非2xxなら失敗として詳細ログ）
           code=$(curl -sS -o resp.json -w "%{http_code}" -H 'Content-Type: application/json' -d @payload.json "$DISCORD_WEBHOOK_URL")
           echo "Discord HTTP: $code"
           if [ "$code" != "200" ] && [ "$code" != "204" ]; then
