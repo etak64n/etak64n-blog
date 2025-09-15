@@ -10,7 +10,6 @@ concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
 
-# Secrets 参照を集約
 env:
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -22,9 +21,9 @@ jobs:
   # --- 1) Build ---
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     permissions:
       contents: read
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,10 +51,10 @@ jobs:
     needs: build
     if: ${{ needs.build.result == 'success' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)) }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     permissions:
       contents: read
       deployments: write
+    timeout-minutes: 10
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -71,16 +70,15 @@ jobs:
           command: pages deploy ${{ env.BUILD_DIR }} --project-name=${{ env.CF_PAGES_PROJECT }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
-  # --- 3) Notify（Embed 1回通知） ---
+  # --- 3) Notify（Embed 1回通知・リンク強化） ---
   notify:
     needs: [build, deploy]
     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)) }}
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     permissions:
       contents: read
+    timeout-minutes: 5
     steps:
-      # Webhook 未設定なら fail
       - name: Verify DISCORD_WEBHOOK_URL is set
         run: |
           set -euo pipefail
@@ -98,25 +96,35 @@ jobs:
           HEAD_MSG: ${{ github.event.head_commit.message }}
           REF_NAME: ${{ github.ref_name }}
           HEAD_REF: ${{ github.head_ref }}
+          IS_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
         run: |
           set -euo pipefail
 
           BUILD="${BUILD_RES:-unknown}"
           DEPLOY="${DEPLOY_RES:-skipped}"
+          EVENT="${EVENT_NAME:-push}"
 
-          # 表示テキスト
-          case "$BUILD" in
-            success) BUILD_TXT="✅ success" ;;
-            failure) BUILD_TXT="❌ failure" ;;
-            *)       BUILD_TXT="$BUILD" ;;
-          esac
-          case "$DEPLOY" in
-            success) DEPLOY_TXT="🚀 success" ;;
-            failure) DEPLOY_TXT="⚠️ failure" ;;
-            *)       DEPLOY_TXT="$DEPLOY" ;;
-          esac
+          # ------ テキスト整形（成功/失敗/スキップをわかりやすく） ------
+          if [ "$BUILD" = "success" ]; then BUILD_TXT="✅ **Succeeded**"; else
+            if [ "$BUILD" = "failure" ]; then BUILD_TXT="❌ **Failed**"; else BUILD_TXT="ℹ️ ${BUILD}"; fi
+          fi
 
-          # Embed 色（Discord は 24bit int）
+          if [ "$DEPLOY" = "success" ]; then
+            DEPLOY_TXT="🚀 **Deployed**"
+          elif [ "$DEPLOY" = "failure" ]; then
+            DEPLOY_TXT="⚠️ **Failed**"
+          else
+            # skipped の理由を補足
+            REASON=""
+            if [ "$EVENT" = "pull_request" ] && [ "${IS_FORK}" = "true" ]; then
+              REASON="(forked PR / no secrets)"
+            elif [ "$BUILD" != "success" ]; then
+              REASON="(build not successful)"
+            fi
+            DEPLOY_TXT="⏭️ **Skipped** ${REASON}"
+          fi
+
+          # ------ 色（24bit int） ------
           # success=0x2ECC71(3066993), deploy fail=0xE67E22(15105570), build fail=0xE74C3C(15158332), skipped=0xFEE75C(16705372)
           if [ "$BUILD" = "failure" ]; then COLOR=15158332
           elif [ "$DEPLOY" = "failure" ]; then COLOR=15105570
@@ -124,28 +132,36 @@ jobs:
           else COLOR=3066993
           fi
 
-          # タイトル（commit/PR タイトルを説明に）
+          # ------ タイトル・本文 ------
           SUBJECT="$HEAD_MSG"
-          if [ "$EVENT_NAME" = "pull_request" ] && [ -n "${PR_TITLE:-}" ]; then SUBJECT="$PR_TITLE"; fi
+          if [ "$EVENT" = "pull_request" ] && [ -n "${PR_TITLE:-}" ]; then SUBJECT="$PR_TITLE"; fi
           SUBJECT=${SUBJECT:-"Workflow summary"}
           SUBJECT=$(printf '%s' "$SUBJECT" | tr -d '\r' | head -n1 | cut -c1-120)
-          SUBJECT_JSON=${SUBJECT//\\/\\\\}
-          SUBJECT_JSON=${SUBJECT_JSON//\"/\\\"}
 
-          BRANCH="$REF_NAME"
-          if [ "$EVENT_NAME" = "pull_request" ] && [ -n "${HEAD_REF:-}" ]; then BRANCH="$HEAD_REF"; fi
+          # JSON エスケープ関数
+          esc() { s=$1; s=${s//\\/\\\\}; s=${s//\"/\\\"}; s=${s//$'\n'/ }; printf '%s' "$s"; }
+
+          SUBJECT_JSON=$(esc "$SUBJECT")
+          BRANCH="$REF_NAME"; [ "$EVENT" = "pull_request" ] && [ -n "${HEAD_REF:-}" ] && BRANCH="$HEAD_REF"
+          BRANCH_JSON=$(esc "$BRANCH")
+          ACTOR_JSON=$(esc "$GITHUB_ACTOR")
+          PROJECT_JSON=$(esc "$CF_PAGES_PROJECT")
 
           SHORT_SHA="${GITHUB_SHA::7}"
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
           REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
+          BRANCH_URL="https://github.com/${GITHUB_REPOSITORY}/tree/${BRANCH}"
+          ACTOR_URL="https://github.com/${GITHUB_ACTOR}"
+          PROJECT_URL="https://${CF_PAGES_PROJECT}.pages.dev"
+
           TITLE="Zola → CF Pages • ${BRANCH} #${GITHUB_RUN_NUMBER}"
           NOW_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          # Embed + ボタン
+          # ------ Embed + ボタン（Branch/Actor/Project をリンク化） ------
           json=$(cat <<EOF
           {
-            "username": "Zola CI",
+            "username": "GitHub Actions",
             "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
             "allowed_mentions": { "parse": [] },
             "embeds": [
@@ -158,12 +174,12 @@ jobs:
                 "author": { "name": "${GITHUB_REPOSITORY}", "url": "${REPO_URL}" },
                 "thumbnail": { "url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" },
                 "fields": [
-                  { "name": "Build",   "value": "${BUILD_TXT}",            "inline": true },
-                  { "name": "Deploy",  "value": "${DEPLOY_TXT}",           "inline": true },
-                  { "name": "Branch",  "value": "\`${BRANCH}\`",           "inline": true },
-                  { "name": "Commit",  "value": "[\`${SHORT_SHA}\`](${COMMIT_URL})", "inline": true },
-                  { "name": "Actor",   "value": "${GITHUB_ACTOR}",         "inline": true },
-                  { "name": "Project", "value": "\`${CF_PAGES_PROJECT}\`", "inline": true }
+                  { "name": "Build",   "value": "${BUILD_TXT}",                                   "inline": true },
+                  { "name": "Deploy",  "value": "${DEPLOY_TXT}",                                  "inline": true },
+                  { "name": "Branch",  "value": "[\\\`${BRANCH_JSON}\\\`](${BRANCH_URL})",        "inline": true },
+                  { "name": "Commit",  "value": "[\\\`${SHORT_SHA}\\\`](${COMMIT_URL})",          "inline": true },
+                  { "name": "Actor",   "value": "[${ACTOR_JSON}](${ACTOR_URL})",                  "inline": true },
+                  { "name": "Project", "value": "[\\\`${PROJECT_JSON}\\\`](${PROJECT_URL})",      "inline": true }
                 ],
                 "footer": { "text": "Run #${GITHUB_RUN_NUMBER}" }
               }
@@ -173,11 +189,12 @@ jobs:
               "components": [
                 { "type": 2, "style": 5, "label": "Open Run",   "url": "${RUN_URL}" },
                 { "type": 2, "style": 5, "label": "View Commit","url": "${COMMIT_URL}" },
-                { "type": 2, "style": 5, "label": "Repository", "url": "${REPO_URL}" }
+                { "type": 2, "style": 5, "label": "Repository", "url": "${REPO_URL}" },
+                { "type": 2, "style": 5, "label": "View Site",  "url": "${PROJECT_URL}" }
               ]
             }]
           }
           EOF
           )
 
-          curl -H 'Content-Type: application/json' -d "$json" "$DISCORD_WEBHOOK_URL"
+          curl -sS -H 'Content-Type: application/json' -d "$json" "$DISCORD_WEBHOOK_URL" >/dev/null
