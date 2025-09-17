@@ -75,6 +75,11 @@ GitHub Flow というのがあるようですが、調べたら他にもルー�
 * CI で `develop` と `release/*` を強制検証
 * `hotfix` の両系反映を自動化
 
+
+Atlassian の Git Tutorials がわかりやすいです。
+
+{{ link(url="https://www.atlassian.com/ja/git/tutorials/comparing-workflows/gitflow-workflow", title="Gitflow ワークフロー | Atlassian Git Tutorials") }}
+
 ### GitHub Flow
 
 GitHub Flow は GitHub のドキュメントで説明されています。
