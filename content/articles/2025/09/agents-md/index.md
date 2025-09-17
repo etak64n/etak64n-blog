@@ -2,7 +2,7 @@
 title = "AGENTS.md について"
 date = 2025-09-01
 updated = 2025-09-01
-draft = false
+draft = true
 taxonomies = { tags=["OpenAI", "codex"], categories=["OpenAI"] }
 [extra]
 author = "etak64n"
