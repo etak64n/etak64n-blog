@@ -112,7 +112,7 @@ footer { border-top: 1px solid var(--border); color: var(--muted); }
 footer .wrap { padding: 20px 16px; display: flex; justify-content: flex-end; align-items: center; }
 
 /* Headings */
-h1, h2, h3 { line-height: 1.25; margin: 0 0 12px; }
+h1, h2, h3 { line-height: 1.25; margin: 0 0 12px; color: var(--text); }
 h1 { font-size: 1.8rem; }
 h2 { font-size: 1.4rem; margin-top: 28px; }
 /* Underline for H2 in content */
@@ -121,6 +121,138 @@ h3 { font-size: 1.2rem; margin-top: 22px; }
 
 /* Markdown line breaks: treat single newlines as breaks in paragraphs */
 .content p { white-space: pre-line; }
+
+/* Quotes */
+.content blockquote {
+  position: relative;
+  margin: 24px 0;
+  padding: 22px 28px 22px 52px;
+  border-left: 6px solid color-mix(in oklab, var(--accent) 65%, var(--border));
+  background: var(--panel);
+  color: #686868;
+  border-radius: 8px;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.05);
+}
+.content blockquote::before {
+  content: "\201C";
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  font-size: 3rem;
+  line-height: 1;
+  color: color-mix(in oklab, var(--accent) 55%, #ffffff);
+  opacity: 0.25;
+  pointer-events: none;
+}
+.content figure.link-card + blockquote {
+  margin-top: 6px;
+  border-top-left-radius: 0;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.05);
+}
+.content figure.link-card + blockquote::after {
+  content: "⤷";
+  position: absolute;
+  top: -16px;
+  left: 16px;
+  width: 32px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: color-mix(in oklab, var(--accent) 68%, #0f172a);
+  background: var(--panel);
+  border: 1px solid color-mix(in oklab, var(--accent) 45%, var(--border));
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme='dark'] .content figure.link-card + blockquote {
+  box-shadow: 0 22px 40px rgba(2, 6, 23, 0.35);
+}
+:root[data-theme='dark'] .content figure.link-card + blockquote::after {
+  color: color-mix(in oklab, var(--accent) 78%, #e0f2fe);
+  border-color: color-mix(in oklab, var(--accent) 60%, rgba(148,163,184,0.45));
+  box-shadow: 0 18px 38px rgba(2, 6, 23, 0.36);
+}
+.content blockquote > * {
+  margin: 0 0 12px;
+}
+.content blockquote > *:last-child {
+  margin-bottom: 0;
+}
+.content blockquote footer,
+.content blockquote cite {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in oklab, var(--accent) 25%, var(--border));
+  font-size: 0.95rem;
+  color: #7a7a7a;
+  font-style: normal;
+  text-align: right;
+}
+:root[data-theme='dark'] .content blockquote footer,
+:root[data-theme='dark'] .content blockquote cite {
+  border-top-color: color-mix(in oklab, var(--accent) 35%, rgba(148,163,184,0.35));
+}
+.content blockquote footer::before,
+.content blockquote cite::before {
+  content: "⤷";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--accent) 40%, var(--border));
+  color: #0f172a;
+  background: rgba(14, 165, 233, 0.12);
+  font-size: 0.9rem;
+}
+:root[data-theme='dark'] .content blockquote footer::before,
+:root[data-theme='dark'] .content blockquote cite::before {
+  border-color: color-mix(in oklab, var(--accent) 60%, rgba(148,163,184,0.45));
+  color: color-mix(in oklab, var(--accent) 80%, #e0f2fe);
+  background: color-mix(in oklab, var(--accent) 20%, transparent);
+}
+.content blockquote footer a,
+.content blockquote cite a {
+  color: var(--link);
+  font-weight: 600;
+}
+:root[data-theme='dark'] .content blockquote footer a,
+:root[data-theme='dark'] .content blockquote cite a {
+  color: color-mix(in oklab, var(--link) 80%, #bfdbfe);
+}
+
+:root[data-theme='dark'] .content blockquote {
+  border-left-color: color-mix(in oklab, var(--accent) 70%, rgba(148,163,184,0.45));
+  background: var(--panel);
+  box-shadow: 0 18px 36px rgba(2, 6, 23, 0.32);
+  color: #d1d5db;
+}
+:root[data-theme='dark'] .content blockquote::before {
+  color: color-mix(in oklab, var(--accent) 70%, #0b1220);
+  opacity: 0.35;
+}
+:root[data-theme='dark'] .content blockquote footer,
+:root[data-theme='dark'] .content blockquote cite {
+  color: #e2e8f0;
+}
+.content blockquote h1,
+.content blockquote h2,
+.content blockquote h3,
+.content blockquote h4,
+.content blockquote h5,
+.content blockquote h6 {
+  color: inherit;
+}
 
 /* Responsive media inside article body */
 .content img, .content svg, .content video, .content iframe {
@@ -308,7 +440,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 
 /* Link card shortcode */
 .content figure.link-card {
-  margin: 16px 0;
+  margin: 18px 0 12px;
   border: 2px solid #bfdbfe; /* blue-200 少しトーンを落とす */
   border-radius: 0;
   background: #fbfdff; /* より白っぽく */

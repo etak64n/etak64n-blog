@@ -77,9 +77,9 @@ Codex のフェーズは主に4つに分かれます。
 > * They are only available to setup scripts. For security reasons, secrets are removed from the environment when the agent is running.
 
 {{ link(url="https://developers.openai.com/codex/cloud/environments", title="Cloud environments") }}
-> ### Automatic setup
+> #### Automatic setup
 > For projects using common package managers (npm, yarn, pnpm, pip, pipenv, and poetry), Codex can automaticaly install dependencies and tools.
-> ### Manual setup
+> #### Manual setup
 > If your development setup is more complex, you can also provide a a custom setup script.
 
 {{ link(url="https://developers.openai.com/codex/cloud/environments", title="Cloud environments") }}
@@ -110,7 +110,7 @@ Codex のフェーズは主に4つに分かれます。
 
 タスクが終了したらサンドボックスは削除されます。
 
-### まとめ
+## まとめ
 
 | フェーズ                    | 何が起きるか                                              | ネットワーク                  | 環境変数 (Env)          | シークレット (Secrets)    |
 | ----------------------- | --------------------------------------------------- | ----------------------- | ------------------- | ------------------- |
