@@ -3,7 +3,7 @@ title = "OpenAI の API キーの種類について"
 date = 2025-09-12
 updated = 2025-09-12
 draft = false
-taxonomies = { tags=["OpenAI", "ChatGPT"], categories=["OpenAPI"] }
+taxonomies = { tags=["OpenAI", "ChatGPT"], categories=["OpenAI"] }
 [extra]
 author = "etak64n"
 hero = "/images/hero/placeholder.svg"
