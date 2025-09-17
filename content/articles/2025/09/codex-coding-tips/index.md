@@ -2,7 +2,7 @@
 title = "Codex コーディング Tips"
 date = 2025-09-17
 updated = 2025-09-17
-draft = true
+draft = false
 taxonomies = { tags=["OpenAI", "codex"], categories=["OpenAI"] }
 [extra]
 author = "etak64n"
@@ -119,3 +119,24 @@ LLMには本文のみを渡し、URLやトークンは出さない。
 これなら人為的なコピペが不要で再現性も◎。
 
 NG: Codex のシークレットで GitHub の鍵を持たせる
+
+### ブランチを切ってから Codex に依頼する
+
+**こんなときに特に有効**
+
+1. 既存大規模リポの 一部分だけ直すとき
+2. 実験的変更を隔離したいとき
+3. 並行タスクを複数回すとき（ブランチごとにCodex依頼）
+
+**手順**
+
+1. Issue を作成する
+2. 人間がブランチを作成する
+3. Codex でローカルでブランチを指定して依頼
+
+**2. 人間がブランチを作成する**
+
+```sh
+git checkout -b 'feat/play-layout-#6'
+git push -u origin 'feat/play-layout-#6'
+```
