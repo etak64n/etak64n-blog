@@ -83,3 +83,39 @@ Fast-forward
 ✓ Deleted local branch codex/align-home-screen-panels-symmetrically and switched to branch main
 ✓ Deleted remote branch codex/align-home-screen-panels-symmetrically
 ```
+
+### issue から Codex に依頼する
+
+1. GitHub で issue を作成する
+2. ChatGPT の Web UI の Codex からタスクを依頼する
+3. Codex が環境を作成して、タスクを処理
+4. Codex が PR を作成
+5. GitHub 上で PR が生成される
+6. ローカルでブランチを切り替える
+
+**2. ChatGPT の Web UI の Codex からタスクを依頼する**
+
+```prompt
+https://github.com/etak64n/decklet/issues/3
+この issue を解決してください。
+```
+
+※ Codex はプライベートリポジトリの issue を参照することができません。
+1. Issue本文をそのまま貼る
+いちばん簡単。Issueの「タイトル/本文/受入基準/コードポインタ」だけをコピペして Codex に渡す。
+機密を含む部分は伏せる or 要約して渡す。
+
+2. GitHub APIでIssueを取得→Codexに渡す（推奨）
+あなたのマシン or CI で 認証つきでIssueを読み、本文だけをCodexに投入。
+例（ローカル・ワンライナー）
+export GITHUB_TOKEN=<fine-grained-PAT(repo:read)>
+gh api repos/<owner>/<repo>/issues/<num> --jq '{title:.title, body:.body}' > /tmp/issue.json
+cat /tmp/issue.json  # ← 中身を確認してからプロンプトに貼る
+Node.js で自動化するなら（PAT or GitHub Appで認証）Issue本文→OpenAIに投げる小スクリプトを作るのがベスト。
+
+3. GitHub App / Action で“社内サイド”から呼ぶ
+PR/Issueに label: codex-ready が付いたら、GitHub Actions が gh api で本文を取ってきて、**自分のサーバ（または社内OpenAIプロキシ）**へ送る。
+LLMには本文のみを渡し、URLやトークンは出さない。
+これなら人為的なコピペが不要で再現性も◎。
+
+NG: Codex のシークレットで GitHub の鍵を持たせる
