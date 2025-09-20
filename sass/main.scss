@@ -390,6 +390,11 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   padding: 0 0.35em;
   border-radius: 0;
 }
+:root[data-theme='dark'] .content :not(pre) > code {
+  background: rgba(148,163,184,0.18);
+  border-color: rgba(148,163,184,0.35);
+  color: #e5e7eb;
+}
 
 /* Codebox shortcode */
 .codebox { border: 1px solid var(--border); border-radius: 0; background: #ffffff; overflow: visible; margin: 16px 0; position: relative; padding-top: 0; }
@@ -438,6 +443,12 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .content th, .content td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; vertical-align: top; }
 .content thead th { background: #eef2ff; font-weight: 600; }
 .content tbody tr:nth-child(even) { background: #f8fafc; }
+
+:root[data-theme='dark'] .content table { border-color: rgba(148,163,184,0.35); }
+:root[data-theme='dark'] .content th,
+:root[data-theme='dark'] .content td { border-color: rgba(148,163,184,0.35); }
+:root[data-theme='dark'] .content thead th { background: rgba(148,163,184,0.15); }
+:root[data-theme='dark'] .content tbody tr:nth-child(even) { background: rgba(148,163,184,0.08); }
 
 /* Pagination */
 .pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; font-size: 0.95rem; }
@@ -636,7 +647,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   color: var(--text);
 }
 :root[data-theme='dark'] .ref-panel {
-  display: none;
   border-color: rgba(96,165,250,0.28);
   box-shadow: 0 18px 38px rgba(2,6,23,0.5);
 }
