@@ -86,6 +86,24 @@ Cloudflare D1 にはリードレプリカの機能があります。
 　REST API：PUT /accounts/{account_id}/d1/database/{database_id} に {"read_replication":{"mode":"auto"}}。
 2. Workerで Sessions API を使う
 
+```js
+export default {
+  async fetch(req, env) {
+    // 1. セッションを開始（最初は最新が不要なら “first-unconstrained” = 既定）
+    const session = env.DB.withSession(); // = "first-unconstrained"
+    // 最新が必須なら: env.DB.withSession("first-primary")
+
+    // 2. 以降のクエリはこの session で実行（順序一貫性が保たれる）
+    const result = await session.prepare("SELECT * FROM items WHERE id=?").bind(123).all();
+
+    // 3. 後続リクエストに継続させるならブックマークを返す
+    const res = Response.json(result);
+    res.headers.set("x-d1-bookmark", session.getBookmark() ?? "");
+    return res;
+  }
+}
+```
+
 ### Cloudflare D1 のキャッシュ戦略
 **Cloudflare D1 自体にはキャッシュの機能がありません。**
 
