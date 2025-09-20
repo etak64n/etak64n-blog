@@ -67,6 +67,24 @@ To access a D1 database outside of a Worker project, you need to create an API u
 binding すると、Cloudflare Worker から D1 database に対して Workers Binding API で実行することができます。
 
 ### リードレプリカ
+Cloudflare D1 にはリードレプリカの機能があります。
+
+**Cloudflare D1 のリードレプリカの特徴**
+* プライマリ DB の読み取り専用コピーを世界各リージョンに非同期で複製する
+  * 読み取りクエリを近い場所で処理してレイテンシ低減・スループット向上を狙う
+* 書き込みは常にプライマリに流れます
+* 対応リージョンすべてに自動で作成されます
+* 使うには “Sessions API” が必須です
+  * これを使わないと、有効化しても全クエリはプライマリで実行されます
+* 追加料金なし
+  * rows_read / rows_written の使用量課金は発生する
+* 無効化には最大で24時間かかる
+
+**有効化する方法**
+1. D1 database で有効化
+　Dashboard：D1データベース → Settings → Enable Read Replication
+　REST API：PUT /accounts/{account_id}/d1/database/{database_id} に {"read_replication":{"mode":"auto"}}。
+2. Workerで Sessions API を使う
 
 ### Cloudflare D1 のキャッシュ戦略
 **Cloudflare D1 自体にはキャッシュの機能がありません。**
