@@ -1,0 +1,23 @@
+{
+  "name": "etak64n-blog",
+  "version": "1.0.0",
+  "description": "Blog built with Zola + Tera and deployed to Cloudflare Pages via GitHub Actions.",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "zola serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/etak64n/etak64n-blog.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/etak64n/etak64n-blog/issues"
+  },
+  "homepage": "https://github.com/etak64n/etak64n-blog#readme"
+}

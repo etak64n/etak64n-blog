@@ -197,6 +197,122 @@
       wrapper.appendChild(preClone);
       pre.replaceWith(wrapper);
     });
+
+    // Make ref badges open their referenced link directly
+    const refBadges = document.querySelectorAll('.ref-trigger-badge');
+    refBadges.forEach(badge => {
+      const url = badge.getAttribute('data-url');
+      if (!url) return;
+      const openTarget = () => window.open(url, '_blank', 'noopener');
+      badge.addEventListener('click', function (event) {
+        event.stopPropagation();
+        openTarget();
+      });
+      badge.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          event.stopPropagation();
+          openTarget();
+        }
+      });
+    });
+
+    // Ensure ref tooltips stay within article width
+    const refNodes = document.querySelectorAll('.ref');
+    const boundaryPadding = 12;
+    const hoverPadding = 16;
+    const scheduleAdjust = (panel, trigger, ref) => {
+      if (!panel || !trigger) return;
+      const frame = () => {
+        const container = trigger.closest('.content') || document.querySelector('.content');
+        const bounds = container ? container.getBoundingClientRect() : document.body.getBoundingClientRect();
+        const rect = panel.getBoundingClientRect();
+        const leftLimit = bounds.left + boundaryPadding;
+        const rightLimit = bounds.right - boundaryPadding;
+        let shift = 0;
+        const available = rightLimit - leftLimit;
+        if (rect.width > available) {
+          shift = leftLimit - rect.left;
+        } else {
+          if (rect.left < leftLimit) {
+            shift = leftLimit - rect.left;
+          } else if (rect.right > rightLimit) {
+            shift = rightLimit - rect.right;
+          }
+        }
+        panel.style.setProperty('--ref-shift', `${shift}px`);
+      };
+      requestAnimationFrame(() => requestAnimationFrame(frame));
+    };
+
+    refNodes.forEach(ref => {
+      const trigger = ref.querySelector('.ref-trigger');
+      const panel = ref.querySelector('.ref-panel');
+      if (!trigger || !panel) return;
+
+      let pointerTracker = null;
+      let openState = false;
+
+      const zoneContains = (x, y) => {
+        const tRect = trigger.getBoundingClientRect();
+        const pRect = panel.getBoundingClientRect();
+        const left = Math.min(tRect.left, pRect.left) - hoverPadding;
+        const right = Math.max(tRect.right, pRect.right) + hoverPadding;
+        const top = Math.min(tRect.top, pRect.top) - hoverPadding;
+        const bottom = Math.max(tRect.bottom, pRect.bottom) + hoverPadding;
+        return x >= left && x <= right && y >= top && y <= bottom;
+      };
+
+      const closeRef = () => {
+        if (!openState) return;
+        openState = false;
+        ref.removeAttribute('data-ref-open');
+        panel.style.removeProperty('--ref-shift');
+        if (pointerTracker) {
+          document.removeEventListener('pointermove', pointerTracker);
+          pointerTracker = null;
+        }
+      };
+
+      const ensureTracker = () => {
+        if (pointerTracker) return;
+        pointerTracker = (event) => {
+          if (!openState) return;
+          if (!zoneContains(event.clientX, event.clientY)) {
+            closeRef();
+          }
+        };
+        document.addEventListener('pointermove', pointerTracker);
+      };
+
+      const openRef = () => {
+        if (openState) return;
+        openState = true;
+        ref.setAttribute('data-ref-open', 'true');
+        scheduleAdjust(panel, trigger, ref);
+        ensureTracker();
+      };
+
+      const handleMouseLeave = (event) => {
+        if (!openState) return;
+        const { clientX, clientY } = event;
+        if (!zoneContains(clientX, clientY)) {
+          closeRef();
+        }
+      };
+
+      const handleFocusOut = (event) => {
+        if (!ref.contains(event.relatedTarget)) {
+          closeRef();
+        }
+      };
+
+      ref.addEventListener('mouseenter', openRef);
+      ref.addEventListener('focusin', openRef);
+      ref.addEventListener('touchstart', openRef, { passive: true });
+      ref.addEventListener('mouseleave', handleMouseLeave);
+      ref.addEventListener('focusout', handleFocusOut);
+    });
   });
 </script>
 </html>

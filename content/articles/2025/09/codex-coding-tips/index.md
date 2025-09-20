@@ -133,6 +133,8 @@ NG: Codex のシークレットで GitHub の鍵を持たせる
 1. Issue を作成する
 2. 人間がブランチを作成する
 3. Codex でローカルでブランチを指定して依頼
+4. PR にレビューを残す（Approve or コメント）
+5. Squash マージ（コミット履歴をキレイに）
 
 **2. 人間がブランチを作成する**
 
@@ -140,3 +142,39 @@ NG: Codex のシークレットで GitHub の鍵を持たせる
 git checkout -b 'feat/play-layout-#6'
 git push -u origin 'feat/play-layout-#6'
 ```
+
+
+**4. PR にレビューを残す（Approve or コメント）**
+
+※ GitHub では自分で Approve できないので gh pr review --approve が実施できません
+
+```sh
+(๑>ᴗ<) < gh pr review 2 --comment -b "ローカルで動作確認済み"
+- Reviewed pull request etak64n/decklet#2
+```
+
+**5. Squash マージ（コミット履歴をキレイに）**
+
+```sh
+(๑>ᴗ<) < gh pr merge 2 --squash --delete-branch
+✓ Squashed and merged pull request etak64n/decklet#2 (Adjust home panel grid layout)
+remote: Enumerating objects: 11, done.
+remote: Counting objects: 100% (11/11), done.
+remote: Compressing objects: 100% (5/5), done.
+remote: Total 6 (delta 4), reused 1 (delta 0), pack-reused 0 (from 0)
+Unpacking objects: 100% (6/6), 1.20 KiB | 617.00 KiB/s, done.
+From github.com:etak64n/decklet
+ * branch            main       -> FETCH_HEAD
+   eb5ae02..898319a  main       -> origin/main
+Updating eb5ae02..898319a
+Fast-forward
+ frontend/src/layout.css    | 10 ++++++++++
+ frontend/src/vite-env.d.ts |  1 -
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+✓ Deleted local branch codex/align-home-screen-panels-symmetrically and switched to branch main
+✓ Deleted remote branch codex/align-home-screen-panels-symmetrically
+```
+
+git checkout main
+git branch
+git branch -D 'feat/play-layout-#6'
