@@ -245,6 +245,16 @@
       requestAnimationFrame(() => requestAnimationFrame(frame));
     };
 
+    const tables = document.querySelectorAll('.content table');
+    tables.forEach(table => {
+      if (!table.closest('.table-wrap')) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-wrap';
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      }
+    });
+
     refNodes.forEach(ref => {
       const trigger = ref.querySelector('.ref-trigger');
       const panel = ref.querySelector('.ref-panel');

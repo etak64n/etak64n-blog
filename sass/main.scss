@@ -439,8 +439,25 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 }
 
 /* Tables */
-.content table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-wrap table {
+  min-width: 520px;
+}
+.content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
 .content th, .content td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; vertical-align: top; }
+.content th, .content td {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
 .content thead th { background: #eef2ff; font-weight: 600; }
 .content tbody tr:nth-child(even) { background: #f8fafc; }
 
