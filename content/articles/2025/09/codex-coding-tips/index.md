@@ -95,7 +95,7 @@ Fast-forward
 
 **2. ChatGPT の Web UI の Codex からタスクを依頼する**
 
-```prompt
+```
 https://github.com/etak64n/decklet/issues/3
 この issue を解決してください。
 ```

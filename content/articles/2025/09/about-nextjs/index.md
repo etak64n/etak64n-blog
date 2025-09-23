@@ -41,6 +41,87 @@ Facebook (現Meta) が開発した UI ライブラリ React には以下のよ�
 ### Next.js の利点
 * 1つのリポジトリでサーバーとクライアントの両方を扱える
 
+### App Router / Pages Router
+
+| 観点         | **App Router (`app/`)**                                                           | **Pages Router (`pages/`)**                                 |               |
+| ---------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------- |
+| 基本思想       | **React Server Components が既定**。ルートはセグメント（フォルダ）単位。                                | 伝統的な Next.js。各ファイル = 各ページ。                                  |               |
+| データ取得      | サーバーコンポーネント内で `await fetch()`／`revalidate`／**タグ無効化**（`revalidateTag`）など。          | `getServerSideProps` / `getStaticProps` / `getStaticPaths`。 |               |
+| フルスタック     | **Route Handlers**（`app/api/**/route.ts`）で API を実装。                               | `pages/api/**` に API ルート。                                   |               |
+| レンダリング     | 既定はサーバー側（RSC）。クライアント側は `"use client"` を付けた島だけ。**ストリーミング**と**分割**が強力。              | 既定はクライアント/SSR のハイブリッド。全体をハイドレートする前提。                        |               |
+| レイアウト/状態   | **ネスト可能な `layout.tsx`**、`template.tsx`、`loading.tsx`、`error.tsx`、`not-found.tsx`。 | `_app.tsx` と `_document.tsx`。レイアウトの入れ子表現はやや工夫が必要。           |               |
+| ルーティング表現   | 並列ルート（`@slot`）、インターセプト（`(..)post`）、グループ（`(group)`）など**高度**。                       | 動的ルートは `[slug]` / `[...slug]`。表現力は十分だが拡張は少なめ。               |               |
+| ページメタ      | `generateMetadata()` で型安全にメタ生成。                                                   | `next/head` で記述。                                            |               |
+| ランタイム指定    | ルート/レイアウトごとに \`export const runtime = 'edge'                                      | 'nodejs'\`。                                                 | ルート単位の切替は限定的。 |
+| クライアント API | `next/navigation`（`useRouter`, `redirect`, など RSC 連携向け）。                          | `next/router`（従来の SPA 的 API）。                               |               |
+| 学習コスト      | **やや高い**（RSC/キャッシュ/境界の理解が必要）。                                                     | **低め**（既存の React/SSR の感覚に近い）。                               |               |
+| エコシステム互換   | 一部のライブラリはクライアントコンポーネント側に置く必要。                                                     | 互換性は高い（歴史が長い）。                                              |               |
+
+#### App Router
+
+構成
+
+```
+app/
+  page.tsx
+  api/
+    hello/
+      route.ts
+```
+
+ページ – app/page.tsx
+
+```tsx
+export default function Page() {
+  return <h1>Hello from App Router</h1>;
+}
+```
+
+Hello API – `app/api/hello/route.ts`
+
+```
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  return NextResponse.json({ hello: "world" });
+}
+```
+
+ページ: `http://localhost:3000/`
+API: `http://localhost:3000/api/hello`
+
+#### Pages Router
+
+構成
+
+```
+pages/
+  index.tsx
+  api/
+    hello.ts
+```
+
+ページ – `pages/index.tsx`
+
+```tsx
+export default function Home() {
+  return <h1>Hello from Pages Router</h1>;
+}
+```
+
+Hello API – `pages/api/hello.ts`
+
+```tsx
+import type { NextApiRequest, NextApiResponse } from "next";
+
+export default function handler(_req: NextApiRequest, res: NextApiResponse) {
+  res.status(200).json({ hello: "world" });
+}
+```
+
+ページ: `http://localhost:3000/`
+API: `http://localhost:3000/api/hello`
+
 ### Next.js を使う場合の構成
 
 #### パターンA：Next.jsだけで完結
