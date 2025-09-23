@@ -57,7 +57,7 @@ Facebook (現Meta) が開発した UI ライブラリ React には以下のよ�
 | 学習コスト      | **やや高い**（RSC/キャッシュ/境界の理解が必要）。                                                     | **低め**（既存の React/SSR の感覚に近い）。                               |               |
 | エコシステム互換   | 一部のライブラリはクライアントコンポーネント側に置く必要。                                                     | 互換性は高い（歴史が長い）。                                              |               |
 
-#### App Router
+#### App Router の例
 
 構成
 
@@ -90,7 +90,7 @@ export async function GET() {
 ページ: `http://localhost:3000/`
 API: `http://localhost:3000/api/hello`
 
-#### Pages Router
+#### Pages Router の例
 
 構成
 
@@ -148,7 +148,7 @@ repo/
 ├─ package.json
 └─ tsconfig.json
 ```
-### Next.js の処理の流れ
+### Next.js のルーティング
 
 Next.js の処理の流れは Next.js のドキュメントに記載されています。 {{ ref(url="https://nextjs.org/docs/app/api-reference/file-conventions/middleware", title="Routing: Middleware | Next.js", excerpt="The following is the execution order:") }} {{ ref(url="https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites", title="next.config.js: rewrites | Next.js", excerpt="The order Next.js routes are checked is:") }}
 
@@ -354,6 +354,22 @@ async rewrites() {
 
 #### 動的ルートの照合
 
+動的ルートの例として、以下のようなパスがあります。
+
+* `/blog/[slug]`
+* `/products/[sku]`
+* `/docs/[version]/[slug]`
+* `/events/[id]`
+* `/orders/[id]`
+* `/u/[username]`
+
+動的ページを作る方法としては、主に3通りあります。
+1. ビルド時に“すべて”静的生成 (SSG)
+2. アクセス時に初回生成 → キャッシュ (ISR)
+3. 毎リクエストで生成 (SSR)
+
+ページの作り方はさておき、これらのルートに合致した場合、その動的ページを返す、というのが動的ルートの照合の処理になります。
+
 #### rewrites(): fallback[]
 
 `rewrites()` は、特定のパスを別のパスへ書き換える処理となります。
@@ -376,41 +392,13 @@ module.exports = {
 
 `rewrites()` からルーティングを作成する実装は [next.js/packages/next/src/lib/load-custom-routes.ts](https://github.com/vercel/next.js/blob/canary/packages/next/src/lib/load-custom-routes.ts") です。
 
-### Next.js のビルド後のファイル
+### Next.js のリクエスト処理の例
 
-`next build` を実行すると `.next/` ディレクトリが作成されます。
+#### Self Hosted Server
 
-.next/ に入る主なもの（代表例）
-static/：クライアント向けに配信されるビルド済みアセット（JS/CSS など）
-server/：サーバー側出力（App Router/Pages のサーバーコード、エントリ、各種マニフェスト）
-マニフェスト各種（JSON）
-ルーティング・リライト・リダイレクト等の規則表：routes-manifest.json
-ミドルウェアのマッチャー等：server/middleware-manifest.json
-App/Pages のパス対応：server/app-paths-manifest.json / server/pages-manifest.json
-クライアントのチャンク表：build-manifest.json / app-build-manifest.json
-SSG/ISR 情報：prerender-manifest.json
-cache/：ビルドキャッシュ（環境によって有無・構成が変わります）
-バージョンや設定によってファイル名・配置は多少変わります（上は“よくある”例）。
+Self Hosted Server の場合は `.next/routes-manifest.json` 
 
-
-### Next.js の処理の流れ(ビルド/起動)
-
-これらの設定は `next build` された後に `.next` にマニフェスト(JSON)として保存されます。
-
-* `.next/routes-manifest.json`
-  * headers / redirects / rewrites の静的ルール表が入ります。
-* `.next/server/middleware-manifest.json`
-  * プロジェクトに middleware.ts がなくても、実行時に参照されるマニフェスト
-* `.next/server/app-paths-manifest.json`（App Router）
-* `.next/server/pages-manifest.json`（Pages Router）
-  * app/ または pages/ の URL ↔ ファイル 対応表。環境やバージョンによって、片方/両方が出ます。
-*  `/_next/build-manifest.json`（配信パス）
-*  `.next/app-build-manifest.json` など
-  * クライアントの JS チャンク対応表（next/link のプリフェッチ等が利用）。
-* `.next/prerender-manifest.json`
-  * SSG/ISR の出力と再検証情報（サイト構成により中身は最小/空に近い場合あり）。
-
-```json
+```
 // .next/routes-manifest.json
 {
   "version": 5,
@@ -449,9 +437,7 @@ cache/：ビルドキャッシュ（環境によって有無・構成が変わ�
 }
 ```
 
----
-
-Self Hosted Server の場合は `.next/routes-manifest.json` 
+#### Edge
 
 自己ホスト（next start）
 

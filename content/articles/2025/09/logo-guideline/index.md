@@ -28,3 +28,24 @@ toc = true
 ## Clerk
 
 ...
+
+## Vercel
+
+**プロダクト一覧**
+
+* Next.js
+* Turbo
+* Turbopack
+* v0
+
+{{ link(url="https://vercel.com/geist/brands", title="Brands") }}
+
+使用できるパターン
+* Vercel の製品・サービスを真実に説明する
+* 自分は Vercel を使っている事実を述べる
+
+### Next.js
+
+
+
+
