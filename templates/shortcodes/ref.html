@@ -41,7 +41,6 @@
 {%- endif -%}
 {%- set _clean_excerpt = _excerpt | trim -%}
 {%- set _lines = _clean_excerpt | split(pat="\n") -%}
-
 <span class="ref" data-ref="{{ _id }}">
   <span class="ref-trigger"
         role="button"
@@ -79,4 +78,4 @@
       </span>
     {%- endif -%}
   </span>
-</span>
+</span>{{- "" -}}

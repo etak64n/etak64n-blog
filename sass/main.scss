@@ -496,6 +496,83 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .content figure.img img { border: 1px solid var(--border); border-radius: 0; display: block; max-width: 100%; height: auto; }
 .content figure.img figcaption { margin-top: 6px; text-align: center; font-size: 0.9rem; color: var(--muted); }
 
+/* Notes */
+.note {
+  margin: 18px 0;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: #f1f5f9;
+  color: var(--text);
+  box-shadow: 0 18px 42px -22px rgba(15, 23, 42, 0.65);
+  border-left-width: 4px;
+  border-left-style: solid;
+  border-left-color: rgba(15, 23, 42, 0.18);
+}
+.note .note-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: #bfdbfe;
+  margin-top: 4px;
+}
+.note .note-body > :first-child { margin-top: 0; }
+.note .note-body > :last-child { margin-bottom: 0; }
+
+
+.note-info {
+  border-color: #bfdbfe;
+  border-left-color: #3b82f6;
+  background: #eff6ff;
+}
+.note-info .note-icon { background: #3b82f6; }
+
+.note-warn {
+  border-color: #facc15;
+  border-left-color: #d97706;
+  background: #fef9c3;
+}
+.note-warn .note-icon { background: #d97706; }
+
+
+.note-alert {
+  border-color: #f87171;
+  border-left-color: #dc2626;
+  background: #fee2e2;
+}
+.note-alert .note-icon { background: #dc2626; }
+
+:root[data-theme='dark'] .note {
+  border-color: rgba(148,163,184,0.35);
+  background: rgba(148,163,184,0.12);
+  box-shadow: 0 0 28px -10px rgba(15, 23, 42, 0.85);
+  border-left-color: rgba(148,163,184,0.45);
+}
+:root[data-theme='dark'] .note .note-icon {
+  box-shadow: none;
+}
+:root[data-theme='dark'] .note-info {
+  border-color: rgba(96,165,250,0.55);
+  border-left-color: rgba(59,130,246,0.8);
+  background: rgba(59,130,246,0.18);
+}
+:root[data-theme='dark'] .note-info .note-icon { background: rgba(59,130,246,0.8); }
+:root[data-theme='dark'] .note-warn {
+  border-color: rgba(250,204,21,0.6);
+  border-left-color: rgba(217,119,6,0.85);
+  background: rgba(250,204,21,0.16);
+}
+:root[data-theme='dark'] .note-warn .note-icon { background: rgba(217,119,6,0.85); }
+:root[data-theme='dark'] .note-alert {
+  border-color: rgba(248,113,113,0.7);
+  border-left-color: rgba(220,38,38,0.85);
+  background: rgba(248,113,113,0.18);
+}
+:root[data-theme='dark'] .note-alert .note-icon { background: rgba(220,38,38,0.85); }
+
 /* Citation hover pill */
 .ref {
   position: relative;
@@ -504,6 +581,10 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   vertical-align: baseline;
   font: inherit;
   line-height: 1;
+  white-space: normal;
+}
+.ref + .ref {
+  margin-left: 6px;
 }
 .ref-trigger {
   display: inline-flex;
