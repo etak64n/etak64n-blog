@@ -6,7 +6,7 @@ draft = false
 taxonomies = { tags=["Next.js"], categories=["Next.js"] }
 [extra]
 author = "etak64n"
-hero = "/images/hero/placeholder.svg"
+hero = "/images/hero/hero-nextjs.svg"
 toc = true
 +++
 
