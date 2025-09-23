@@ -90,6 +90,8 @@ export async function GET() {
 ページ: `http://localhost:3000/`
 API: `http://localhost:3000/api/hello`
 
+App Router を使用したサンプルコードです。
+
 {{ link(url="https://github.com/etak64n/nextjs-app-router-minimal", title="etak64n/nextjs-app-router-minimal") }}
 
 #### Pages Router の例
@@ -124,34 +126,10 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
 ページ: `http://localhost:3000/`
 API: `http://localhost:3000/api/hello`
 
+Pages Router を使用したサンプルコードです。
+
 {{ link(url="https://github.com/etak64n/nextjs-pages-router-minimal", title="etak64n/nextjs-pages-router-minimal") }}
 
-### Next.js を使う場合の構成
-
-#### パターンA：Next.jsだけで完結
-App Router + Server Components + API Routes
-小〜中規模向け
-
-```sh
-repo/
-├─ app/
-│  ├─ (routes)/
-│  │  └─ todos/
-│  │     ├─ page.tsx          # Server Component (default)
-│  │     └─ client.tsx        # Client Component ("use client")
-│  ├─ api/
-│  │  └─ todos/route.ts       # API Route (server-only)
-│  ├─ layout.tsx
-│  └─ page.tsx
-├─ lib/
-│  ├─ db.ts                    # DB client (Prisma/Drizzle etc.)
-│  └─ services/                # business logic layer
-├─ prisma/                     # if Prisma
-├─ .env                        # server-only secrets
-├─ .env.local                  # local overrides
-├─ package.json
-└─ tsconfig.json
-```
 ### Next.js のルーティング
 
 Next.js の処理の流れは Next.js のドキュメントに記載されています。 {{ ref(url="https://nextjs.org/docs/app/api-reference/file-conventions/middleware", title="Routing: Middleware | Next.js", excerpt="The following is the execution order:") }} {{ ref(url="https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites", title="next.config.js: rewrites | Next.js", excerpt="The order Next.js routes are checked is:") }}
@@ -400,81 +378,46 @@ module.exports = {
 
 #### Self Hosted Server
 
-Self Hosted Server の場合は `.next/routes-manifest.json` 
-
-```
-// .next/routes-manifest.json
-{
-  "version": 5,
-  "basePath": "",
-  "headers": [
-    {
-      "source": "/:path*",
-      "headers": [
-        { "key": "x-content-type-options", "value": "nosniff" }
-      ]
-    },
-    {
-      "source": "/_next/static/:path*",
-      "headers": [
-        { "key": "cache-control", "value": "public, max-age=31536000, immutable" }
-      ]
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/old",
-      "destination": "/new",
-      "statusCode": 308
-    }
-  ],
-  "rewrites": {
-    "beforeFiles": [],
-    "afterFiles": [
-      {
-        "source": "/api/:path*",
-        "destination": "https://bff.example.com/:path*"
-      }
-    ],
-    "fallback": []
-  }
-}
-```
+1. (クライアント) ブラウザで `/dashboard` にアクセスする
+2. (クライアント -> サーバー)`GET /dashboard`
+3. (サーバー) next.config の `headers()` → `redirects()` を適用 ( `redrects()` が処理された場合、3xx を返してリダイレクトして終了 )
+4. (サーバー) `middleware.ts` で認証を行う
+5. (サーバー) next.config の `rewrites()` で beforeFiles を適用する
+6. (サーバー) 静的ファイルにヒットするか確認する ( ヒットしたらそのまま静的ページを返して終了 )
+7. (サーバー) next.config の `rewrites()` で afterFiles を適用する
+8. (サーバー) `app/dashboard/page.tsx` で動的ページの生成を行う
+9. (サーバー -> API サーバー) `await fetch()` で API を実行する
+10. (API サーバー -> サーバー) API の結果を返す
+11. (サーバー -> データベース) `lib/db.ts` でデータベースへの接続を行いクエリを投げる
+12. (データベース) クエリの処理をする
+13. (データベース -> サーバー) クエリの結果を返す
+14. (サーバー) クエリ結果を元に `/dashboard` の HTML を生成する
+15. (サーバー -> クライアント) `/dashboard` の HTML を返す
+16. (クライアント) HTML を描画する (この時点でユーザーはページを確認できる)
+17. (クライアント) `/dashboard` で JavaScript が動作する
+18. (クライアント) React と HTML のハイドレーションが行われる
+19. (クライアント) ページの生成が完了
 
 #### Edge
 
-自己ホスト（next start）
+1. (クライアント) ブラウザで `/dashboard` にアクセスする
+2. (クライアント -> エッジ)`GET /dashboard`
+3. (エッジ) next.config の `headers()` → `redirects()` を適用 ( `redrects()` が処理された場合、3xx を返してリダイレクトして終了 )
+4. (エッジ) `middleware.ts` で認証を行う
+5. (エッジ) next.config の `rewrites()` で beforeFiles を適用する
+6. (エッジ) 静的ファイルにヒットするか確認する ( ヒットしたらそのまま静的ページを返して終了 )
+7. (エッジ) next.config の `rewrites()` で afterFiles を適用する
+8. (サーバー) `app/dashboard/page.tsx` で動的ページの生成を行う
+9. (サーバー -> API サーバー) `await fetch()` で API を実行する
+10. (API サーバー -> サーバー) API の結果を返す
+11. (サーバー -> データベース) `lib/db.ts` でデータベースへの接続を行いクエリを投げる
+12. (データベース) クエリの処理をする
+13. (データベース -> サーバー) クエリの結果を返す
+14. (サーバー) クエリ結果を元に `/dashboard` の HTML を生成する
+15. (サーバー -> クライアント) `/dashboard` の HTML を返す
+16. (クライアント) HTML を描画する (この時点でユーザーはページを確認できる)
+17. (クライアント) `/dashboard` で JavaScript が動作する
+18. (クライアント) React と HTML のハイドレーションが行われる
+19. (クライアント) ページの生成が完了
 
-next build 時に .next/routes-manifest.json が生成されます。
-
-本番サーバ（Next.js の Node サーバ）が 起動/実行時にこのファイルを読み、redirects / rewrites / headers などを適用します。
-→ この種のマニフェストが見つからないと実行時エラーになる事例があります（同系の pages-manifest.json/middleware-manifest.json を Next 本体が要求）。
-GitHub
-+1
-
-Vercel などの PaaS
-
-デプロイ時に ビルド出力（.next）をプラットフォームが取り込み、その中のルーティング情報（routes-manifest.json）を自社のルーティング設定へ変換して配備します。
-→ .next/routes-manifest.json が無いと Vercel 側でエラーになります（＝プラットフォームが参照している証拠）。
-Vercel
-+1
-
-変換後は Vercel の“Build Output API” の routes 設定としてデプロイに適用され、Edge でのルーティングに反映されます。元ファイルそのものを Edge POP に配るわけではありません。 
-Vercel
-
-なぜ「Edge に置かれない」と言える？
-
-Edge Runtime では Node の fs などファイルシステム API は使えません。Edge 関数が .next 内のローカルファイルを直接読む設計ではなく、プラットフォーム（または Node サーバ）が事前に“規則”へ落として適用します。
-Next.js
-
-### Edge 環境
-コンピュート平面が分かれている：
-Node Functions（サーバレス/コンテナ系） と
-Edge Functions（POPに分散配置） が 別インフラで最適化されている。
-
-実行場所の違い：
-Edge: ユーザーに近いPOPで実行 → 低レイテンシ・起動が速いが、Node API不可・実行時間やメモリは小さめ。
-Node: リージョン固定（例：iad1/apne1等）→ 機能は豊富で DB/TCP も扱いやすいが、レイテンシはリージョン距離に依存。
-
-Client → (CDN/Edge) → [Middleware/Edge Functionsがあれば実行]
-       → Node Functions（必要なら） → Route Handlers/SSR
+エッジ or サーバーが選べる部分もありますが、一番スタンダードな構成は上記のステップだと思います。
