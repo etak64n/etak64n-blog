@@ -90,6 +90,8 @@ export async function GET() {
 ページ: `http://localhost:3000/`
 API: `http://localhost:3000/api/hello`
 
+{{ link(url="https://github.com/etak64n/nextjs-app-router-minimal", title="etak64n/nextjs-app-router-minimal") }}
+
 #### Pages Router の例
 
 構成
@@ -121,6 +123,8 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
 
 ページ: `http://localhost:3000/`
 API: `http://localhost:3000/api/hello`
+
+{{ link(url="https://github.com/etak64n/nextjs-pages-router-minimal", title="etak64n/nextjs-pages-router-minimal") }}
 
 ### Next.js を使う場合の構成
 
