@@ -4,6 +4,7 @@ date = 2025-09-22
 updated = 2025-09-22
 draft = false
 taxonomies = { tags=["Next.js", "Web"], categories=["Web"] }
+math = true
 [extra]
 author = "etak64n"
 hero = "/images/hero/hero-nextjs.svg"

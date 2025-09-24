@@ -4,6 +4,7 @@ date = 2025-09-12
 updated = 2025-09-12
 draft = false
 taxonomies = { tags=["OpenAI", "ChatGPT"], categories=["OpenAI"] }
+math = true
 [extra]
 author = "etak64n"
 hero = "/images/hero/placeholder.svg"

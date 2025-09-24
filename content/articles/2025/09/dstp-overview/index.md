@@ -4,6 +4,7 @@ date = 2025-09-15
 updated = 2025-09-15
 draft = false
 taxonomies = { tags=["Network", "Tools"], categories=["Tools"] }
+math = true
 [extra]
 author = "etak64n"
 hero = "/images/hero/hero-terminal.webp"

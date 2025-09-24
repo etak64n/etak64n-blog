@@ -4,6 +4,7 @@ date = 2025-09-24
 updated = 2025-09-24
 draft = false
 taxonomies = { tags=["Google","Google Chrome","Browser"], categories=["Application"] }
+math = true
 [extra]
 author = "etak64n"
 hero = "/images/hero/placeholder.svg"

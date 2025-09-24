@@ -4,6 +4,7 @@ date = 2025-09-01
 updated = 2025-09-01
 draft = false
 taxonomies = { tags=["AWS","Amazon Q","Google","Gemini","Open AI","Codex","Anthoropic","Claude"], categories=["AI"] }
+math = true
 [extra]
 author = "etak64n"
 hero = "/images/hero/placeholder.svg"

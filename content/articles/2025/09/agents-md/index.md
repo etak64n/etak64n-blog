@@ -4,6 +4,7 @@ date = 2025-09-01
 updated = 2025-09-01
 draft = true
 taxonomies = { tags=["OpenAI", "codex"], categories=["OpenAI"] }
+math = true
 [extra]
 author = "etak64n"
 hero = "/images/hero/placeholder.svg"

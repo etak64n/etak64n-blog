@@ -4,6 +4,7 @@ date = 2025-09-23
 updated = 2025-09-23
 draft = false
 taxonomies = { tags=["Security"], categories=["Security"] }
+math = true
 [extra]
 author = "etak64n"
 hero = "/images/hero/placeholder.svg"

@@ -4,6 +4,7 @@ date = 2025-09-01
 updated = 2025-09-01
 draft = false
 taxonomies = { tags=["GitHub Actions"], categories=["GitHub"] }
+math = true
 [extra]
 author = "etak64n"
 hero = "/images/hero/placeholder.svg"
