@@ -3,7 +3,7 @@ title = "Next.js の middleware.ts の認証実装方法"
 date = 2025-09-22
 updated = 2025-09-22
 draft = false
-taxonomies = { tags=["Next.js"], categories=["Next.js"] }
+taxonomies = { tags=["Web","Next.js"], categories=["Web"] }
 [extra]
 author = "etak64n"
 hero = "/images/hero/hero-nextjs.svg"

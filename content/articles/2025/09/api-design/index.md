@@ -3,7 +3,7 @@ title = "API デザインについて"
 date = 2025-09-22
 updated = 2025-09-22
 draft = false
-taxonomies = { tags=["API"], categories=["API"] }
+taxonomies = { tags=["Web"], categories=["Web"] }
 [extra]
 author = "etak64n"
 hero = "/images/hero/placeholder.svg"

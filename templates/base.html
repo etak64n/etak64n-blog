@@ -1,3 +1,7 @@
+{% set math_enabled = config.extra.enable_math | default(value=false) %}
+{% if page is defined %}
+  {% set math_enabled = page.extra.math | default(value=math_enabled) %}
+{% endif %}
 <!doctype html>
 <html lang="ja">
 <head>
@@ -5,6 +9,9 @@
   <title>{% if page %}{{ page.title }} | {% endif %}{{ config.title }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ get_url(path='main.css', cachebust=true) }}">
+  {% if math_enabled %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  {% endif %}
   <script>
     // Apply saved or preferred theme early to avoid FOUC
     (function(){
@@ -71,6 +78,10 @@
     <p>&copy; {{ now() | date(format="%Y") }} etak64n</p>
   </div>
 </footer>
+  {% if math_enabled %}
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  {% endif %}
 </body>
 <script>
   // Theme toggle wiring (single button at top-right)
@@ -325,4 +336,21 @@
     });
   });
 </script>
+{% if math_enabled %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof renderMathInElement !== 'function') return;
+    const root = document.querySelector('.content') || document.body;
+    renderMathInElement(root, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\(', right: '\)', display: false},
+        {left: '\[', right: '\]', display: true}
+      ],
+      throwOnError: false
+    });
+  });
+</script>
+{% endif %}
 </html>

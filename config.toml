@@ -7,6 +7,7 @@ build_search_index = false       # 日本語は未対応のため無効化
 compile_sass = true
 
 [markdown]
+render_math = true
 highlight_code = true            # コードハイライト
 highlight_theme = "base16-ocean-dark"
 
