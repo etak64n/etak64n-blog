@@ -422,8 +422,26 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .codebox-pre { margin: 0 0 10px 0; padding: 0; background: #f8fafc; border: 1px solid var(--border); border-radius: 0; overflow-x: auto; max-width: 100%; }
 .codebox-pre code { display: block; padding: 14px 16px; padding-right: 56px; font-size: 0.85em; line-height: 1.5; min-width: fit-content; }
 .codebox-pre { position: relative; }
-.codebox-copy { position: absolute; top: 8px; right: 10px; padding: 4px 8px; font-size: 0.8rem; border-radius: 0; border: 1px solid var(--border); background: #ffffff; color: #334155; opacity: 0.9; }
+.codebox-copy {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  padding: 6px;
+  border-radius: 0;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: #334155;
+  opacity: 0;
+  visibility: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.codebox-copy svg { width: 16px; height: 16px; }
+.codebox-pre:hover .codebox-copy { opacity: 0.9; visibility: visible; transition: opacity 150ms ease, visibility 150ms ease; }
 .codebox-copy:hover { opacity: 1; }
+.codebox-copy.copied { opacity: 1; visibility: visible; }
 .codebox-copy.copied { background: #d1fae5; border-color: #86efac; color: #065f46; }
 .codebox.dark .codebox-copy { background: #111827; color: #e5e7eb; border-color: rgba(148,163,184,0.25); }
 .codebox.dark .codebox-copy.copied { background: #064e3b; color: #bbf7d0; border-color: #10b981; }
