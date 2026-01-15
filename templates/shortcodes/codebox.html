@@ -13,8 +13,6 @@ Params:
 #}
 {% set title = title | default(value=filename) %}
 {% set theme = theme | default(value="dark") %}
-{% set title = title | default(value=filename) %}
-{% set theme = theme | default(value="dark") %}
 {% set show_tab = title and title is matching("(\\.|^)([^/\\s]+)\\.[A-Za-z0-9]+$") %}
 <div class="codebox{% if theme == "dark" %} dark{% endif %}">
   <div class="codebox-bar"></div>

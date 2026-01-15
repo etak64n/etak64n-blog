@@ -55,6 +55,10 @@
 </div>
 
 {# Related posts footer (full width, grid cards) #}
+{# Note: set_global is required here because Tera resets variable scope on each loop iteration.
+   - `shown`: tracks displayed post count across iterations (max 4)
+   - `score`: accumulates tag/category match score within nested loops
+   Without set_global, these counters would reset to their initial value on each iteration. #}
 {% set mytags = page.taxonomies.tags | default(value=[]) %}
 {% set mycats = page.taxonomies.categories | default(value=[]) %}
 {% set banned = ["AWS"] %}

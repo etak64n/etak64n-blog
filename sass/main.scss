@@ -91,7 +91,7 @@ nav a:hover { color: var(--link); }
 .theme-switch .switch-icons .icon { position: absolute; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--icon); opacity: 0.9; }
 .theme-switch .switch-icons .sun { left: 8px; }
 .theme-switch .switch-icons .moon { right: 8px; }
-.theme-switch:hover .switch-track { border-color: color-mix(in oklab, var(--border), #93c5fd 35%); }
+.theme-switch:hover .switch-track { border-color: #c9d7ea; border-color: color-mix(in oklab, var(--border), #93c5fd 35%); }
 .theme-switch:hover .switch-thumb { box-shadow: 0 3px 10px rgba(0,0,0,0.22); }
 
 .theme-switch[data-mode='dark'] .switch-thumb { transform: translate(26px,-50%); }
@@ -127,6 +127,7 @@ h3 { font-size: 1.2rem; margin-top: 22px; }
   position: relative;
   margin: 24px 0;
   padding: 22px 28px 22px 52px;
+  border-left: 6px solid #4fc9e9;
   border-left: 6px solid color-mix(in oklab, var(--accent) 65%, var(--border));
   background: var(--panel);
   color: #686868;
@@ -140,6 +141,7 @@ h3 { font-size: 1.2rem; margin-top: 22px; }
   left: 18px;
   font-size: 3rem;
   line-height: 1;
+  color: #87d7f2;
   color: color-mix(in oklab, var(--accent) 55%, #ffffff);
   opacity: 0.25;
   pointer-events: none;
@@ -161,8 +163,10 @@ h3 { font-size: 1.2rem; margin-top: 22px; }
   justify-content: center;
   font-size: 1rem;
   font-weight: 600;
+  color: #2ba8c9;
   color: color-mix(in oklab, var(--accent) 68%, #0f172a);
   background: var(--panel);
+  border: 1px solid #7dd3e9;
   border: 1px solid color-mix(in oklab, var(--accent) 45%, var(--border));
   border-radius: 999px;
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
@@ -173,7 +177,9 @@ h3 { font-size: 1.2rem; margin-top: 22px; }
   box-shadow: 0 22px 40px rgba(2, 6, 23, 0.35);
 }
 :root[data-theme='dark'] .content figure.link-card + blockquote::after {
+  color: #5fd4ed;
   color: color-mix(in oklab, var(--accent) 78%, #e0f2fe);
+  border-color: #4bb8d4;
   border-color: color-mix(in oklab, var(--accent) 60%, rgba(148,163,184,0.45));
   box-shadow: 0 18px 38px rgba(2, 6, 23, 0.36);
 }
@@ -191,6 +197,7 @@ h3 { font-size: 1.2rem; margin-top: 22px; }
   gap: 10px;
   margin-top: 16px;
   padding-top: 12px;
+  border-top: 1px solid #c5dfe8;
   border-top: 1px solid color-mix(in oklab, var(--accent) 25%, var(--border));
   font-size: 0.95rem;
   color: #7a7a7a;
@@ -199,6 +206,7 @@ h3 { font-size: 1.2rem; margin-top: 22px; }
 }
 :root[data-theme='dark'] .content blockquote footer,
 :root[data-theme='dark'] .content blockquote cite {
+  border-top-color: #4fa8be;
   border-top-color: color-mix(in oklab, var(--accent) 35%, rgba(148,163,184,0.35));
 }
 .content blockquote footer::before,
@@ -210,6 +218,7 @@ h3 { font-size: 1.2rem; margin-top: 22px; }
   width: 26px;
   height: 26px;
   border-radius: 999px;
+  border: 1px solid #7dd3e9;
   border: 1px solid color-mix(in oklab, var(--accent) 40%, var(--border));
   color: #0f172a;
   background: rgba(14, 165, 233, 0.12);
@@ -217,8 +226,11 @@ h3 { font-size: 1.2rem; margin-top: 22px; }
 }
 :root[data-theme='dark'] .content blockquote footer::before,
 :root[data-theme='dark'] .content blockquote cite::before {
+  border-color: #4bb8d4;
   border-color: color-mix(in oklab, var(--accent) 60%, rgba(148,163,184,0.45));
+  color: #5fd4ed;
   color: color-mix(in oklab, var(--accent) 80%, #e0f2fe);
+  background: rgba(14, 165, 233, 0.2);
   background: color-mix(in oklab, var(--accent) 20%, transparent);
 }
 .content blockquote footer a,
@@ -228,16 +240,19 @@ h3 { font-size: 1.2rem; margin-top: 22px; }
 }
 :root[data-theme='dark'] .content blockquote footer a,
 :root[data-theme='dark'] .content blockquote cite a {
+  color: #7bb8f5;
   color: color-mix(in oklab, var(--link) 80%, #bfdbfe);
 }
 
 :root[data-theme='dark'] .content blockquote {
+  border-left-color: #3fc0db;
   border-left-color: color-mix(in oklab, var(--accent) 70%, rgba(148,163,184,0.45));
   background: var(--panel);
   box-shadow: 0 18px 36px rgba(2, 6, 23, 0.32);
   color: #d1d5db;
 }
 :root[data-theme='dark'] .content blockquote::before {
+  color: #1a8fa8;
   color: color-mix(in oklab, var(--accent) 70%, #0b1220);
   opacity: 0.35;
 }
@@ -598,15 +613,20 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   line-height: 1;
   font-variant-numeric: tabular-nums;
   border-radius: 999px;
+  border: 1px solid #d0dced;
   border: 1px solid color-mix(in oklab, var(--border), var(--link) 22%);
+  background: #eaf3fc;
   background: color-mix(in oklab, var(--panel) 75%, #bfdbfe 25%);
+  color: #7088a8;
   color: color-mix(in oklab, var(--muted), var(--link) 28%);
   cursor: pointer;
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
 }
 .ref-trigger:hover,
 .ref-trigger:focus-visible {
+  background: #b8d4f5;
   background: color-mix(in oklab, var(--panel) 55%, #93c5fd 45%);
+  border-color: #a8c4e4;
   border-color: color-mix(in oklab, var(--border), var(--link) 45%);
   color: var(--link-hover);
   box-shadow: 0 0 0 2px rgba(59,130,246,0.18);
@@ -630,6 +650,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   opacity: 0.75;
 }
 .ref-trigger:focus-visible {
+  outline: 2px solid #4d8bd9;
   outline: 2px solid color-mix(in oklab, var(--link), #60a5fa 30%);
   outline-offset: 2px;
 }
@@ -638,12 +659,16 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   font-size: 0.82em;
   padding: 0.05em 0.4em;
   border-radius: 999px;
+  background: #e8edf8;
   background: color-mix(in oklab, var(--panel), #1d4ed8 18%);
+  color: #1a3f8a;
   color: color-mix(in oklab, var(--link-hover), #1e1e1e 15%);
+  border: 1px solid #b8c8e4;
   border: 1px solid color-mix(in oklab, var(--border), var(--link) 35%);
   cursor: pointer;
 }
 .ref-trigger-badge:focus-visible {
+  outline: 2px solid #7ba8e8;
   outline: 2px solid color-mix(in oklab, var(--link), #bfdbfe 40%);
   outline-offset: 2px;
 }
@@ -660,6 +685,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   max-inline-size: min(360px, 88vw);
   padding: 4px 14px 12px;
   border-radius: 14px;
+  border: 1px solid #d8e0ed;
   border: 1px solid color-mix(in oklab, var(--border), rgba(59,130,246,0.22));
   background: var(--panel);
   color: var(--text);
@@ -715,6 +741,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .ref-panel-subtitle {
   display: block;
   font-size: 0.88rem;
+  color: #5a6370;
   color: color-mix(in oklab, var(--muted), var(--text) 30%);
   margin-bottom: 4px;
   line-height: 1.3;
@@ -732,6 +759,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   gap: 3px;
   font-size: 0.88rem;
   line-height: 1.35;
+  color: #636b78;
   color: color-mix(in oklab, var(--muted), var(--text) 20%);
 }
 .ref-panel-line { display: block; }
@@ -744,18 +772,23 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   overflow-wrap: anywhere;
 }
 :root[data-theme='dark'] .ref-trigger {
+  border-color: #3a5a8a;
   border-color: color-mix(in oklab, var(--border), #2563eb 26%);
+  background: #1a3058;
   background: color-mix(in oklab, var(--panel) 60%, rgba(37,99,235,0.35) 40%);
+  color: #a8c0e0;
   color: color-mix(in oklab, var(--muted), #93c5fd 40%);
 }
 :root[data-theme='dark'] .ref-trigger:hover,
 :root[data-theme='dark'] .ref-trigger:focus-visible {
+  background: #2a4a80;
   background: color-mix(in oklab, var(--panel) 40%, rgba(59,130,246,0.6) 60%);
   border-color: rgba(96,165,250,0.65);
   color: #bfdbfe;
   box-shadow: 0 0 0 2px rgba(37,99,235,0.25);
 }
 :root[data-theme='dark'] .ref-trigger-badge {
+  background: #1a3868;
   background: color-mix(in oklab, var(--panel), rgba(96,165,250,0.45));
   color: #bfdbfe;
   border-color: rgba(96,165,250,0.55);
@@ -767,9 +800,9 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   border-color: rgba(96,165,250,0.28);
   box-shadow: 0 18px 38px rgba(2,6,23,0.5);
 }
-:root[data-theme='dark'] .ref-panel-meta { color: color-mix(in oklab, var(--muted), #cbd5f5 25%); }
-:root[data-theme='dark'] .ref-panel-subtitle { color: color-mix(in oklab, var(--muted), #cbd5f5 20%); }
-:root[data-theme='dark'] .ref-panel-text { color: color-mix(in oklab, var(--muted), #e2e8f0 18%); }
+:root[data-theme='dark'] .ref-panel-meta { color: #a0aac0; color: color-mix(in oklab, var(--muted), #cbd5f5 25%); }
+:root[data-theme='dark'] .ref-panel-subtitle { color: #9ca6bc; color: color-mix(in oklab, var(--muted), #cbd5f5 20%); }
+:root[data-theme='dark'] .ref-panel-text { color: #a0aab8; color: color-mix(in oklab, var(--muted), #e2e8f0 18%); }
 
 @media (max-width: 640px) {
   .ref-panel {
@@ -886,7 +919,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .menu-toggle .icon-close { display: none; margin: 0 auto; }
 .menu-toggle .icon-close path { stroke: currentColor; stroke-width: 1.6; fill: none; stroke-linecap: round; }
 .menu-toggle:hover { opacity: 0.95; color: var(--link); }
-.menu-toggle:hover .icon-hamburger path { stroke: color-mix(in oklab, currentColor, #3b82f6 25%); }
+.menu-toggle:hover .icon-hamburger path { stroke: #5a80b0; stroke: color-mix(in oklab, currentColor, #3b82f6 25%); }
 
 /* Turn hamburger into an X when menu is open */
 /* No animation: swap icons instead */
@@ -923,4 +956,37 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   .menu-toggle { display: inline-block; }
   .nav-desktop { display: none; }
   :root[data-menu='open'] .mobile-nav { display: flex; }
+}
+
+/* Taxonomy list (tags/categories index) */
+.taxonomy-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.taxonomy-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--panel);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.taxonomy-item:hover {
+  border-color: #bfdbfe;
+  border-color: color-mix(in oklab, var(--border), var(--link) 40%);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+.taxonomy-item a {
+  font-weight: 500;
+  text-decoration: none;
+}
+.taxonomy-count {
+  color: var(--muted);
+  font-size: 0.9rem;
 }
