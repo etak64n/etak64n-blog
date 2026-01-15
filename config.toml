@@ -8,7 +8,7 @@ compile_sass = true
 
 [markdown]
 render_math = true
-highlight_code = true            # コードハイライト
+highlight_code = true
 highlight_theme = "base16-ocean-dark"
 
 [[taxonomies]]

@@ -17,7 +17,7 @@ Highlights
 - Build for production: `zola build` → output in `public/`
 
 ## Project structure (excerpt)
-- `content/articles/` — posts section (year/month/post)
+- `content/articles/` — posts section (category/slug/index.md + assets)
 - `templates/` — Tera templates
   - `templates/base.html` — shared layout
   - `templates/index.html` — Home (latest posts)
@@ -28,7 +28,16 @@ Highlights
 - `static/images/` — images served under `/images/...`
 
 ## Writing posts
-Add a Markdown file under `content/articles/YYYY/MM/slug.md`.
+Create a directory under `content/articles/<Category>/<slug>/` and add an `index.md` (plus any images/assets) there.
+Year/month folders are no longer needed; the category name becomes part of the output path.
+Use one of the existing category folders (`Cloudflare`, `Security`, etc.), or create a new folder and drop a minimal `_index.md` like:
+```toml
++++
+title = "YourCategory"
+transparent = true
++++
+```
+This keeps the category section transparent so the article still appears in the top-level Articles listing.
 
 Front matter example (TOML):
 ```toml
@@ -36,7 +45,7 @@ Front matter example (TOML):
 title = "Title"
 date = 2025-09-01
 updated = 2025-09-01
-draft = false
+draft = true
 taxonomies = { tags=["AWS","QuickSight"], categories=["Analytics"] }
 [extra]
 hero = "/images/your-hero.svg"  # optional; placeholder used if omitted
