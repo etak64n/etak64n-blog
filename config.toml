@@ -8,7 +8,7 @@ compile_sass = true
 
 [markdown.highlighting]
 enabled = true
-theme = "material-theme-ocean"
+theme = "nord"
 
 [[taxonomies]]
 name = "tags"
