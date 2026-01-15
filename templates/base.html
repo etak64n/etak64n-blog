@@ -272,6 +272,50 @@
       }
     });
 
+    // Auto-link plain URLs in .content (excluding code blocks and existing links)
+    (function(){
+      const content = document.querySelector('.content');
+      if (!content) return;
+      const urlPattern = /https?:\/\/[^\s<>"')\]]+/g;
+      const walk = (node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent;
+          if (!urlPattern.test(text)) return;
+          urlPattern.lastIndex = 0;
+          const parent = node.parentNode;
+          if (!parent) return;
+          // Skip if inside excluded elements
+          if (parent.closest('a, pre, code, .codebox')) return;
+          const frag = document.createDocumentFragment();
+          let lastIdx = 0;
+          let match;
+          while ((match = urlPattern.exec(text)) !== null) {
+            if (match.index > lastIdx) {
+              frag.appendChild(document.createTextNode(text.slice(lastIdx, match.index)));
+            }
+            const a = document.createElement('a');
+            a.href = match[0];
+            a.textContent = match[0];
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            frag.appendChild(a);
+            lastIdx = urlPattern.lastIndex;
+          }
+          if (lastIdx < text.length) {
+            frag.appendChild(document.createTextNode(text.slice(lastIdx)));
+          }
+          parent.replaceChild(frag, node);
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          // Skip excluded elements
+          const tag = node.tagName.toLowerCase();
+          if (tag === 'a' || tag === 'pre' || tag === 'code' || node.classList.contains('codebox')) return;
+          // Process children (copy to array to avoid live collection issues)
+          Array.from(node.childNodes).forEach(walk);
+        }
+      };
+      walk(content);
+    })();
+
     refNodes.forEach(ref => {
       const trigger = ref.querySelector('.ref-trigger');
       const panel = ref.querySelector('.ref-panel');
