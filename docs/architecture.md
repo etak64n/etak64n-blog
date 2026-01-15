@@ -87,10 +87,9 @@ generate_sitemap = true         # サイトマップ有効
 build_search_index = false      # 検索インデックス無効（日本語未対応）
 compile_sass = true             # SASS コンパイル有効
 
-[markdown]
-render_math = true               # 数式レンダリング有効
-highlight_code = true            # コードハイライト有効
-highlight_theme = "base16-ocean-dark"  # ハイライトテーマ
+[markdown.highlighting]
+enabled = true                   # コードハイライト有効
+theme = "material-theme-ocean"   # ハイライトテーマ（Zola 0.22+ / Giallo）
 
 [[taxonomies]]
 name = "tags"

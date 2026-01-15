@@ -6,10 +6,9 @@ generate_sitemap = true
 build_search_index = false       # 日本語は未対応のため無効化
 compile_sass = true
 
-[markdown]
-render_math = true
-highlight_code = true
-highlight_theme = "base16-ocean-dark"
+[markdown.highlighting]
+enabled = true
+theme = "material-theme-ocean"
 
 [[taxonomies]]
 name = "tags"
