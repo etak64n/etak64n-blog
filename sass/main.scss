@@ -840,32 +840,28 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   overflow-wrap: anywhere;
 }
 :root[data-theme='dark'] .ref-trigger {
-  border-color: #3a5a8a;
-  border-color: color-mix(in oklab, var(--border), #2563eb 26%);
-  background: #1a3058;
-  background: color-mix(in oklab, var(--panel) 60%, rgba(37,99,235,0.35) 40%);
-  color: #a8c0e0;
-  color: color-mix(in oklab, var(--muted), #93c5fd 40%);
+  border-color: rgba(96, 165, 250, 0.4);
+  background: #1e293b;
+  color: #93c5fd;
 }
 :root[data-theme='dark'] .ref-trigger:hover,
 :root[data-theme='dark'] .ref-trigger:focus-visible {
-  background: #2a4a80;
-  background: color-mix(in oklab, var(--panel) 40%, rgba(59,130,246,0.6) 60%);
-  border-color: rgba(96,165,250,0.65);
+  background: #334155;
+  border-color: rgba(96, 165, 250, 0.6);
   color: #bfdbfe;
-  box-shadow: 0 0 0 2px rgba(37,99,235,0.25);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 :root[data-theme='dark'] .ref-trigger-badge {
-  background: #1a3868;
-  background: color-mix(in oklab, var(--panel), rgba(96,165,250,0.45));
+  background: #334155;
   color: #bfdbfe;
-  border-color: rgba(96,165,250,0.55);
+  border-color: rgba(96, 165, 250, 0.5);
 }
 :root[data-theme='dark'] .ref-panel-title {
   color: var(--text);
 }
 :root[data-theme='dark'] .ref-panel {
-  border-color: rgba(96,165,250,0.28);
+  background: #1e293b;
+  border-color: rgba(96, 165, 250, 0.4);
   box-shadow: 0 18px 38px rgba(2,6,23,0.5);
 }
 :root[data-theme='dark'] .ref-panel-meta { color: #a0aac0; color: color-mix(in oklab, var(--muted), #cbd5f5 25%); }
@@ -954,14 +950,14 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 
 /* Dark variant for link cards */
 :root[data-theme='dark'] .content figure.link-card {
-  background: #0b1220;
-  border-color: #1e3a8a; /* blue-800 */
-  box-shadow: 0 2px 8px rgba(2,6,23,0.6), 0 0 0 1px rgba(30,58,138,0.45) inset;
+  background: linear-gradient(180deg, #1e293b 0%, #172033 100%);
+  border-color: rgba(96, 165, 250, 0.3);
+  box-shadow: 0 2px 8px rgba(2,6,23,0.4), 0 10px 24px rgba(2,6,23,0.3);
 }
 :root[data-theme='dark'] .content figure.link-card:hover {
-  background: #0c1530;
-  border-color: #2563eb; /* blue-600 */
-  box-shadow: 0 0 0 2px rgba(37,99,235,0.35), 0 10px 24px rgba(2,6,23,0.7);
+  background: linear-gradient(180deg, #253449 0%, #1e293b 100%);
+  border-color: rgba(96, 165, 250, 0.5);
+  box-shadow: 0 4px 12px rgba(2,6,23,0.5), 0 16px 32px rgba(2,6,23,0.4);
 }
 @media (max-width: 720px) {
   .content figure.link-card.has-image .link-card-body { grid-template-columns: 1fr; }

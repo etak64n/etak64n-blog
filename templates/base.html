@@ -236,7 +236,8 @@
     // Ensure ref tooltips stay within article width
     const refNodes = document.querySelectorAll('.ref');
     const boundaryPadding = 12;
-    const hoverPadding = 16;
+    const hoverPadding = 8;
+    const hoverPaddingRight = 4;
     const scheduleAdjust = (panel, trigger, ref) => {
       if (!panel || !trigger) return;
       const frame = () => {
@@ -282,11 +283,17 @@
       const zoneContains = (x, y) => {
         const tRect = trigger.getBoundingClientRect();
         const pRect = panel.getBoundingClientRect();
-        const left = Math.min(tRect.left, pRect.left) - hoverPadding;
-        const right = Math.max(tRect.right, pRect.right) + hoverPadding;
-        const top = Math.min(tRect.top, pRect.top) - hoverPadding;
-        const bottom = Math.max(tRect.bottom, pRect.bottom) + hoverPadding;
-        return x >= left && x <= right && y >= top && y <= bottom;
+        // トリガー領域
+        const inTrigger = x >= tRect.left - hoverPadding && x <= tRect.right + hoverPaddingRight &&
+                          y >= tRect.top - hoverPadding && y <= tRect.bottom + hoverPadding;
+        // パネル領域
+        const inPanel = x >= pRect.left - hoverPadding && x <= pRect.right + hoverPaddingRight &&
+                        y >= pRect.top - hoverPadding && y <= pRect.bottom + hoverPadding;
+        // トリガーとパネルの間の接続領域（縦方向）
+        const inBridge = x >= Math.max(tRect.left, pRect.left) - hoverPadding &&
+                         x <= Math.min(tRect.right, pRect.right) + hoverPaddingRight &&
+                         y >= tRect.bottom && y <= pRect.top;
+        return inTrigger || inPanel || inBridge;
       };
 
       const closeRef = () => {
