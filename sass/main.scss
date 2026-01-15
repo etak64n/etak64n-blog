@@ -350,6 +350,36 @@ li { margin: 6px 0; }
     0 18px 36px rgba(15, 23, 42, 0.12);
 }
 
+/* Dark theme for post list */
+:root[data-theme='dark'] .post-list li {
+  background: linear-gradient(180deg, #1e293b 0%, #172033 100%);
+  border-color: rgba(148, 163, 184, 0.3);
+  box-shadow:
+    0 2px 4px rgba(2, 6, 23, 0.4),
+    0 10px 24px rgba(2, 6, 23, 0.3);
+}
+:root[data-theme='dark'] .post-list li:hover {
+  background: linear-gradient(180deg, #253449 0%, #1e293b 100%);
+  box-shadow:
+    0 4px 8px rgba(2, 6, 23, 0.5),
+    0 16px 32px rgba(2, 6, 23, 0.4);
+  border-color: rgba(148, 163, 184, 0.5);
+}
+:root[data-theme='dark'] .thumb {
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+:root[data-theme='dark'] .related .post-list.post-grid > li {
+  box-shadow:
+    0 2px 8px rgba(2, 6, 23, 0.3),
+    0 12px 24px rgba(2, 6, 23, 0.25);
+}
+:root[data-theme='dark'] .related .post-list.post-grid > li:hover {
+  box-shadow:
+    0 4px 12px rgba(2, 6, 23, 0.4),
+    0 18px 36px rgba(2, 6, 23, 0.35);
+}
+
 /* Article */
 article { padding: 8px 0; }
 .post-hero { margin: 16px 0 8px; border-radius: 0; overflow: hidden; border: 1px solid var(--border); }
@@ -526,6 +556,25 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .pagination a { text-decoration: none; }
 .pagination a:hover { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
 .pagination .current { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; font-weight: 600; }
+
+/* Dark theme for pagination */
+:root[data-theme='dark'] .pagination a,
+:root[data-theme='dark'] .pagination span {
+  background: #1e293b;
+  border-color: rgba(148, 163, 184, 0.3);
+  color: var(--text);
+}
+:root[data-theme='dark'] .pagination a:hover {
+  background: #334155;
+  border-color: rgba(96, 165, 250, 0.5);
+  color: #93c5fd;
+}
+:root[data-theme='dark'] .pagination .current {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(96, 165, 250, 0.5);
+  color: #93c5fd;
+}
+
 .content figure.img { margin: 16px 0; }
 .content figure.img img { border: 1px solid var(--border); border-radius: 0; display: block; max-width: 100%; height: auto; }
 .content figure.img figcaption { margin-top: 6px; text-align: center; font-size: 0.9rem; color: var(--muted); }
